@@ -5,6 +5,7 @@
 - Preserve existing test, packaging, installation, and local deployment procedures.
 - Run the project's existing validation commands before promoting a change.
 - Keep private configuration, credentials, customer data, and backup files out of commits and release packages.
+- Commits carry only the repository owner's identity. Do not add co-author trailers for assistants or tools.
 - Preview public changes and obtain the repository owner's approval before publishing.
 
 ## Changes to main
