@@ -13,7 +13,7 @@ Reports the Exchange Online messages sent to **more than 25 recipients** — cou
 >
 > The `Install-Module` commands in this documentation use `-Force`, so they also update or reinstall a module that is already installed. If an older version still conflicts, close every PowerShell window, open a new one (as administrator for `-Scope AllUsers`), run `Uninstall-Module <ModuleName> -AllVersions -Force`, then run the `Install-Module` command again.
 
-![HTML report](docs/images/report-overview.png)
+![HTML report](package/docs/images/report-overview.png)
 
 ## Why
 
@@ -33,7 +33,7 @@ Message trace  ──►  local SQLite history  ──►  CSV + HTML report
 - **Report**: one row per unique Message ID — received time, sender, recipients (optional), subject, recipient count, distribution lists, Message ID — as CSV and a self-contained HTML file with filters, Top 10 senders and message details. Large periods are split by day, week or number of rows.
 - **Read-only** for Microsoft 365: the tool never sends e-mail and never changes a setting.
 
-![Console](docs/images/console-report.png)
+![Console](package/docs/images/console-report.png)
 
 ## Requirements
 
@@ -49,7 +49,7 @@ Message trace  ──►  local SQLite history  ──►  CSV + HTML report
 
 ```powershell
 git clone https://github.com/Nico77600/RecipientLimitReport.git
-cd RecipientLimitReport
+cd RecipientLimitReport\package
 notepad .\config\RecipientLimitReport.config.psd1      # TenantId, application, sender domains
 
 .\Invoke-RecipientLimitReport.ps1 -Mode Status          # checks the configuration, no connection
@@ -58,14 +58,14 @@ notepad .\config\RecipientLimitReport.config.psd1      # TenantId, application, 
 .\Invoke-RecipientLimitReport.ps1 -Mode Collect         # daily collection (scheduled task)
 ```
 
-The message trace keeps 90 days: schedule the daily collection. The zip of each [release](https://github.com/Nico77600/RecipientLimitReport/releases) contains only the files needed to run.
+The message trace keeps 90 days: schedule the daily collection. The `package` folder of this repository holds exactly the files needed to run Recipient Limit Report, with the guide. The zip of each [release](https://github.com/Nico77600/RecipientLimitReport/releases) contains the same run-time files with the HTML guide; `.\tools\New-RlrPackage.ps1` builds that zip content from the repository.
 
 ## Documentation
 
 The **administrator guide** covers installation, configuration, unattended execution with a certificate, the count before distribution list expansion, the report, troubleshooting and the internals:
 
-- [docs/RecipientLimitReport-Guide.md](docs/RecipientLimitReport-Guide.md)
-- `docs/RecipientLimitReport-Guide.html` — the same guide as a single HTML file (download it and open it locally)
+- [package/docs/RecipientLimitReport-Guide.md](package/docs/RecipientLimitReport-Guide.md)
+- `package/docs/RecipientLimitReport-Guide.html` — the same guide as a single HTML file (download it and open it locally)
 
 ## Same report as Purview DLP Report
 
@@ -79,7 +79,7 @@ Invoke-Pester -Path .\tests      # Pester 5, no connection to Microsoft 365
 
 ## License
 
-[MIT](LICENSE). The bundled SQLite components keep their own licenses: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+[MIT](LICENSE). The bundled SQLite components keep their own licenses: see [THIRD-PARTY-NOTICES.md](package/THIRD-PARTY-NOTICES.md).
 
 ## Disclaimer
 

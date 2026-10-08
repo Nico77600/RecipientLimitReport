@@ -1,7 +1,7 @@
 #Requires -Version 7.4
 <#
 .SYNOPSIS
-    Builds docs\RecipientLimitReport-Guide.html from docs\RecipientLimitReport-Guide.md.
+    Builds package\docs\RecipientLimitReport-Guide.html from package\docs\RecipientLimitReport-Guide.md.
 
 .DESCRIPTION
     The Markdown guide stays readable as plain text (and on GitHub / Azure DevOps). This script
@@ -33,8 +33,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Source = (Join-Path $PSScriptRoot '..\docs\RecipientLimitReport-Guide.md'),
-    [string]$Destination = (Join-Path $PSScriptRoot '..\docs\RecipientLimitReport-Guide.html')
+    [string]$Source = (Join-Path $PSScriptRoot '..\package\docs\RecipientLimitReport-Guide.md'),
+    [string]$Destination = (Join-Path $PSScriptRoot '..\package\docs\RecipientLimitReport-Guide.html')
 )
 $ErrorActionPreference = 'Stop'
 $Source = (Resolve-Path $Source).Path

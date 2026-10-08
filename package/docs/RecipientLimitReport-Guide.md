@@ -197,7 +197,7 @@ Check without connecting | `.\Invoke-RecipientLimitReport.ps1 -Mode Status` — 
 | `data\` · `reports\` · `logs\` · `bin\` | Created at run time — the package contains **no database**, the first run creates an empty one. **Back up `data\`**: it is the only history beyond 90 days. |
 
 > [!NOTE]
-> The package holds only what is needed to run. The git repository of the tool also contains the Markdown source of this guide, `tests\` (automated tests) and `tools\` (documentation builder, package builder) — see chapters 12 to 14.
+> The package holds only what is needed to run. The git repository of the tool also contains this Markdown guide in `package\docs\`, `tests\` (automated tests) and `tools\` (documentation builder, package builder) — see chapters 12 to 14.
 
 <!-- icon: settings -->
 ## 6. Configuration
@@ -563,8 +563,8 @@ The engine selects the messages of the period over the limit, keeps **one row pe
 | Change splitting or file names | `ReportPlanner.Plan`, `PeriodLabel`, `FileLabel` (engine). |
 | Add a period ("current week"…) | `ValidateSet` of `-Range` **and** of `Resolve-RlrPeriod`, a new `switch` branch, a test in *Periods*. |
 | Change the console output | Always go through `Write-RlrStep`, `Write-RlrItem`, `Write-RlrTableRow`, `Write-RlrSummary`: they also write the log. |
-| Update the SQLite libraries | nuget.org packages `Microsoft.Data.Sqlite.Core` + `SQLitePCLRaw.*` (same version): `lib/net8.0` into `lib\sqlite`, `runtimes/win-*/native/e_sqlite3.dll` into `lib\sqlite\runtimes`. Delete `bin\`, run the tests, update `THIRD-PARTY-NOTICES.md`. |
-| Change this guide | Edit `docs\RecipientLimitReport-Guide.md` (callouts `> [!NOTE]`, blocks `cards`, `steps`, `flow`), then run `.\tools\Build-Documentation.ps1`. |
+| Update the SQLite libraries | nuget.org packages `Microsoft.Data.Sqlite.Core` + `SQLitePCLRaw.*` (same version): `lib/net8.0` into `package\lib\sqlite`, `runtimes/win-*/native/e_sqlite3.dll` into `package\lib\sqlite\runtimes`. Delete `bin\`, run the tests, update `THIRD-PARTY-NOTICES.md`. |
+| Change this guide | Edit `package\docs\RecipientLimitReport-Guide.md` (callouts `> [!NOTE]`, blocks `cards`, `steps`, `flow`), then run `.\tools\Build-Documentation.ps1`. |
 
 ### Pitfalls of the message trace API (lab, 2026-10-02 and 2026-10-05)
 
@@ -723,7 +723,7 @@ FROM message WHERE list_rows > 0 AND count_value > 25 AND COALESCE(list_state, '
 <!-- icon: tag -->
 ## Annex E — Versioning and release checklist
 
-Version numbers follow **MAJOR.MINOR.PATCH** — MAJOR: incompatible change (configuration or database) · MINOR: new feature · PATCH: fix. The version appears in `RecipientLimitReport.psd1`, `$script:ToolVersion`, the file headers, this guide and `CHANGELOG.md`. The folder is a **git** repository (`git log --oneline`, `git tag`).
+Version numbers follow **MAJOR.MINOR.PATCH** — MAJOR: incompatible change (configuration or database) · MINOR: new feature · PATCH: fix. The version appears in `package\RecipientLimitReport.psd1`, `$script:ToolVersion`, the file headers, this guide and `CHANGELOG.md`. The folder is a **git** repository (`git log --oneline`, `git tag`).
 
 ```steps
 Code | Update the code and the comments, in English.
