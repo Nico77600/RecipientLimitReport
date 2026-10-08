@@ -164,10 +164,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--cp-bor
 <div class="code"><div class="code-head"><span>PowerShell</span><button type="button" class="copy"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button></div><pre><code>Get-ChildItem &quot;C:\Chemin\Du\Dossier&quot; -Recurse -File -Force | Unblock-File
 </code></pre></div>
 <p>Replace the example path with the folder where you downloaded or extracted this project.</p>
-</div>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>This is the <strong>administrator/developer guide</strong>: detailed prerequisites, authentication, configuration, message-trace behaviour, report internals and maintenance. For everyday commands only, read the <a href="RecipientLimitReport-UserGuide.md">user guide</a>.</p>
+<p>The <code>Install-Module</code> commands in this documentation use <code>-Force</code>, so they also update or reinstall a module that is already installed. If an older version still conflicts, close every PowerShell window, open a new one (as administrator for <code>-Scope AllUsers</code>), run <code>Uninstall-Module &lt;ModuleName&gt; -AllVersions -Force</code>, then run the <code>Install-Module</code> command again.</p>
 </div>
 <div class="cards"><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div><div><div class="card-title">What it answers</div><div class="card-text">Who sends mail to more than 25 recipients, to whom, about what, and when — what a recipient limit of 25 would block.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></div><div><div class="card-title">Where the data comes from</div><div class="card-text">The Exchange Online <strong>message trace</strong> (Microsoft Graph): every recipient of every message, 90 days.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><div><div class="card-title">What it keeps</div><div class="card-text">A local <strong>SQLite</strong> history of the messages over the limit, beyond the 90 days of the message trace.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg></div><div><div class="card-title">What it produces</div><div class="card-text"><strong>CSV + HTML</strong> files in a local folder — the same report as Purview DLP Report.</div></div></div></div>
 </header><section class="section" id="quick-start"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg></div><div><div class="section-eyebrow">Start here</div><h2>Quick start</h2></div></div><div class="section-body">
@@ -380,6 +377,9 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--cp-bor
 </tr>
 </tbody>
 </table></div>
+<div class="code"><div class="code-head"><span>PowerShell</span><button type="button" class="copy"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button></div><pre><code># Interactive mode only: the MSAL library of the Microsoft Graph PowerShell SDK
+Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+</code></pre></div>
 <h3 id="permissions">Permissions</h3>
 <div class="cards"><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3"/></svg></div><div><div class="card-title">Application (recommended)</div><div class="card-text">An app registration with the Microsoft Graph <strong>application</strong> permission <code>ExchangeMessageTrace.Read.All</code>, admin consent, and a <strong>certificate</strong> — chapter 7.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/></svg></div><div><div class="card-title">Administrator account (interactive)</div><div class="card-text">The <strong>delegated</strong> permission <code>ExchangeMessageTrace.Read.All</code> consented for the client application, and an Exchange role that can read the message trace (for example <em>Global Reader</em>).</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="card-title">Microsoft message trace service</div><div class="card-text">The tenant must hold the service principal of the Microsoft application <strong><code>8bd644d1-64a1-4d4b-ae52-2e0cbf64e373</code></strong>, created once (chapter 7). Without it, Graph answers 401.</div></div></div></div>
 <div class="markdown-alert markdown-alert-note">
@@ -422,12 +422,8 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--cp-bor
 <td>SQLite libraries (see <code>THIRD-PARTY-NOTICES.md</code>)</td>
 </tr>
 <tr>
-<td><code>docs\RecipientLimitReport-UserGuide.html</code></td>
-<td>Everyday-use guide</td>
-</tr>
-<tr>
 <td><code>docs\RecipientLimitReport-Guide.html</code></td>
-<td>Administrator/developer guide</td>
+<td>This guide</td>
 </tr>
 <tr>
 <td><code>data\</code> · <code>reports\</code> · <code>logs\</code> · <code>bin\</code></td>
@@ -740,6 +736,7 @@ Export-Certificate -Cert $cert -FilePath .\RecipientLimitReport-Collector.cer
 $cert.Thumbprint
 
 # Service principal of the Microsoft message trace service (once per tenant, Application Administrator)
+Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
 Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 New-MgServicePrincipal -AppId '8bd644d1-64a1-4d4b-ae52-2e0cbf64e373'
 </code></pre></div>
@@ -1499,7 +1496,7 @@ FROM message WHERE list_rows &gt; 0 AND count_value &gt; 25 AND COALESCE(list_st
 </tbody>
 </table></div>
 </div></section>
-<footer>Recipient Limit Report 1.0.1 · Nicolas Fabert · generated 2026-10-08 20:11 from RecipientLimitReport-Guide.md</footer></main>
+<footer>Recipient Limit Report 1.0.1 · Nicolas Fabert · generated 2026-10-08 20:35 from RecipientLimitReport-Guide.md</footer></main>
 <button type="button" id="to-top" title="Back to top"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
 <dialog id="zoom"><img alt=""></dialog>
 <script>

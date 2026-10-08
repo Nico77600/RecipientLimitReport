@@ -841,7 +841,7 @@ function Import-RlrMsal {
     $source = Get-Module -ListAvailable Microsoft.Graph.Authentication | Sort-Object Version -Descending |
         ForEach-Object { Join-Path $_.ModuleBase 'Dependencies' } |
         Where-Object { Test-Path -LiteralPath (Join-Path $_ 'Core\Microsoft.Identity.Client.dll') } | Select-Object -First 1
-    if (-not $source) { throw 'Interactive mode needs the Microsoft.Graph.Authentication module (Install-Module Microsoft.Graph.Authentication -Scope CurrentUser), or use Certificate mode.' }
+    if (-not $source) { throw 'Interactive mode needs the Microsoft.Graph.Authentication module (Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force), or use Certificate mode.' }
     Add-Type -LiteralPath (Join-Path $source 'Microsoft.IdentityModel.Abstractions.dll')
     Add-Type -LiteralPath (Join-Path $source 'Core\Microsoft.Identity.Client.dll')
 }

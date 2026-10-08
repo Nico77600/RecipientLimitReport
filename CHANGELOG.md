@@ -12,6 +12,12 @@ Author: Nicolas Fabert.
   32 min (604 routes). The console now gives a range: one route per count at least, every route the
   recipient lists may need at most (bounded by `Counting.MaxRoutesPerMessage`), with the time of each. New test.
 
+### Changed
+- Documentation aligned on Purview DLP Report: one administrator guide — the separate user guide of 1.0.0 is
+  removed, its content is in the Quick start and chapters 4 to 10 of the guide — and a README with the same
+  sections. The `Install-Module` commands use `-Force` (guide and message of the interactive mode), as in
+  Purview DLP Report 2.1.1.
+
 ### Documented
 - Guide, chapter 11 and Annex C: the 7-day lab run from an empty database (2026-09-28 → 2026-10-05 18:00):
   3 h 03 min, 13.2 million rows, 799,446 messages, 2,727 requests without any 429, 400,139 messages over 25,

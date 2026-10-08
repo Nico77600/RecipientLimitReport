@@ -18,9 +18,8 @@ updated: 2026-10-08
 > ```
 >
 > Replace the example path with the folder where you downloaded or extracted this project.
-
-> [!NOTE]
-> This is the **administrator/developer guide**: detailed prerequisites, authentication, configuration, message-trace behaviour, report internals and maintenance. For everyday commands only, read the [user guide](RecipientLimitReport-UserGuide.md).
+>
+> The `Install-Module` commands in this documentation use `-Force`, so they also update or reinstall a module that is already installed. If an older version still conflicts, close every PowerShell window, open a new one (as administrator for `-Scope AllUsers`), run `Uninstall-Module <ModuleName> -AllVersions -Force`, then run the `Install-Module` command again.
 
 ```cards
 target | What it answers | Who sends mail to more than 25 recipients, to whom, about what, and when — what a recipient limit of 25 would block.
@@ -158,6 +157,11 @@ clock | Report in seconds | Once a period is collected and counted, its report i
 | Browser | Recent Edge, Chrome or Firefox, to open the HTML report | Edge |
 | Network | HTTPS to `graph.microsoft.com` and `login.microsoftonline.com` | — |
 
+```powershell
+# Interactive mode only: the MSAL library of the Microsoft Graph PowerShell SDK
+Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+```
+
 ### Permissions
 
 ```cards
@@ -189,8 +193,7 @@ Check without connecting | `.\Invoke-RecipientLimitReport.ps1 -Mode Status` — 
 | `src\RecipientLimitReport.Engine.cs` | C# engine: requests, database, CSV/HTML writing |
 | `templates\Report.template.html` | Look and behaviour of the HTML report (the page of Purview DLP Report) |
 | `lib\sqlite\` | SQLite libraries (see `THIRD-PARTY-NOTICES.md`) |
-| `docs\RecipientLimitReport-UserGuide.html` | Everyday-use guide |
-| `docs\RecipientLimitReport-Guide.html` | Administrator/developer guide |
+| `docs\RecipientLimitReport-Guide.html` | This guide |
 | `data\` · `reports\` · `logs\` · `bin\` | Created at run time — the package contains **no database**, the first run creates an empty one. **Back up `data\`**: it is the only history beyond 90 days. |
 
 > [!NOTE]
@@ -314,6 +317,7 @@ Export-Certificate -Cert $cert -FilePath .\RecipientLimitReport-Collector.cer
 $cert.Thumbprint
 
 # Service principal of the Microsoft message trace service (once per tenant, Application Administrator)
+Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
 Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 New-MgServicePrincipal -AppId '8bd644d1-64a1-4d4b-ae52-2e0cbf64e373'
 ```
