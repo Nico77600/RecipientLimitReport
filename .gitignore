@@ -1,0 +1,7 @@
+# Created at run time - never commit data, reports or logs (they contain e-mail addresses)
+data/
+reports/
+logs/
+bin/
+*.pending/
+*.zip

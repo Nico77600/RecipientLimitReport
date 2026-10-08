@@ -1,0 +1,430 @@
+<!doctype html>
+<!--
+    Recipient Limit Report - HTML template
+    Author  : Nicolas Fabert
+    Version : 1.0.1
+    Same page as the Purview DLP Report: only the source of the data changes (message trace).
+    The engine (src\RecipientLimitReport.Engine.cs) copies this file and replaces two markers
+    near the end of the body (each must appear exactly once):
+      CHUNKS marker : the compressed data blocks (<script type="application/x-rlr-chunk">)
+      META marker   : the report description (period, file, totals) as JSON
+    Everything else is static: edit texts, colours or columns here, no rebuild needed.
+-->
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipient Limit | Message report</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme = param === "light" || param === "dark" ? param : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef; --cp-bg-elevated: #fcfbf8; --cp-surface: #ffffff; --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede; --cp-border-strong: #919191; --cp-text: #242424; --cp-text-muted: #5c5c5c; --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b; --cp-accent-hover: #9a1a41; --cp-accent-soft: rgba(177, 31, 75, 0.08); --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a; --cp-danger: #dc2626; --cp-warning: #f59e0b; --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12); --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a; --cp-bg-elevated: #343231; --cp-surface: #292929; --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747; --cp-border-strong: #5f5f5f; --cp-text: #dedede; --cp-text-muted: #919191; --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1; --cp-accent-hover: #fb7b91; --cp-accent-soft: rgba(253, 142, 161, 0.14); --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80; --cp-danger: #f87171; --cp-warning: #fbbf24; --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32); --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+* { box-sizing: border-box; }
+body { margin:0; padding:28px 32px; background:var(--cp-bg); color:var(--cp-text); font:14px "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+h1 { font-size:32px; font-weight:650; letter-spacing:-0.025em; margin:8px 0 12px; }
+h2 { font-size:18px; font-weight:600; margin:0 0 12px; }
+p { line-height:1.5; margin:8px 0; } .muted, small { color:var(--cp-text-muted); }
+header { position:relative; overflow:hidden; border:1px solid var(--cp-border); border-top:4px solid var(--cp-accent); border-radius:16px; padding:24px; margin-bottom:20px; background:linear-gradient(125deg,var(--cp-surface) 35%,var(--cp-accent-soft)); }
+header::before { content:""; position:absolute; width:280px; height:280px; right:-100px; top:-160px; border:40px solid var(--cp-highlight); border-radius:50%; pointer-events:none; }
+.hero-top { position:relative; display:flex; justify-content:space-between; gap:24px; align-items:flex-start; flex-wrap:wrap; }
+#origin { color:var(--cp-accent); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; }
+.subtitle { color:var(--cp-text-muted); max-width:640px; }
+.period { min-width:280px; padding:12px 16px; border:1px solid var(--cp-border); border-radius:0.625rem; background:var(--cp-surface); }
+.label { font-size:11px; color:var(--cp-accent); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; display:block; margin-bottom:8px; }
+#range { font-size:13px; line-height:1.6; font-variant-numeric:tabular-nums; }
+.metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin:20px 0 16px; }
+.tile { position:relative; overflow:hidden; padding:18px 20px; border:1px solid var(--cp-border); border-radius:16px; background:var(--cp-surface); transition:transform 160ms ease,border-color 160ms ease; }
+.tile:hover { transform:translateY(-3px); border-color:var(--cp-accent); }
+.tile::after { content:""; position:absolute; width:80px; height:80px; right:-28px; bottom:-32px; border:14px solid var(--cp-highlight); border-radius:50%; pointer-events:none; }
+.tile-primary { background:linear-gradient(125deg,var(--cp-accent-hover),var(--cp-accent)); border-color:var(--cp-accent); color:var(--cp-accent-fg); }
+.tile-tinted { background:linear-gradient(135deg,var(--cp-surface),var(--cp-accent-soft)); }
+.tile-label { display:block; font-size:12px; font-weight:600; margin-bottom:12px; }
+.tile strong { display:block; font-size:32px; font-weight:650; letter-spacing:-0.025em; font-variant-numeric:tabular-nums; }
+.tile small { display:block; margin-top:8px; font-size:11px; } .tile-primary small { color:var(--cp-accent-fg); }
+.tile-icon { position:absolute; top:16px; right:16px; width:20px; height:20px; opacity:0.7; }
+.caption { font-size:12px; color:var(--cp-text-muted); margin:0 0 12px; }
+.distribution { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; border-top:1px solid var(--cp-border); padding-top:12px; }
+.band-head { display:flex; justify-content:space-between; font-size:11px; gap:8px; color:var(--cp-text-muted); }
+.track { height:5px; border-radius:8px; background:var(--cp-border); margin-top:8px; overflow:hidden; }
+.fill { height:100%; width:0; border-radius:8px; background:var(--cp-accent); transition:width 220ms ease; }
+.top-senders { border-top:1px solid var(--cp-border); margin-top:20px; padding-top:16px; }
+.top-senders h2 { margin:0 0 4px; font-size:14px; }
+#top-senders-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(var(--ranking-rows,5),auto); grid-auto-flow:column; gap:4px 20px; margin:8px 0 0; padding:0; list-style:none; }
+#top-senders-list li { min-width:0; }
+.sender-rank { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:6px 10px; border:1px solid var(--cp-border); border-radius:0.625rem; text-align:left; font-size:12px; background:linear-gradient(to right,var(--cp-accent-soft) var(--share),var(--cp-surface) var(--share)); }
+.sender-rank-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sender-rank-count { flex-shrink:0; font-variant-numeric:tabular-nums; color:var(--cp-text-muted); }
+#file-set { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; background:var(--cp-surface); border:1px solid var(--cp-border); border-radius:16px; padding:12px 20px; margin-bottom:20px; }
+#file-set .label { margin:0; }
+#messages { background:var(--cp-surface); border:1px solid var(--cp-border); border-radius:16px; padding:20px; margin-bottom:20px; }
+input, button, select { font:inherit; color:var(--cp-text); background:var(--cp-surface); border:1px solid var(--cp-border); padding:7px 10px; border-radius:0.625rem; }
+button { cursor:pointer; } button:disabled { color:var(--cp-text-muted); cursor:default; }
+button:not(:disabled):hover, a:hover { color:var(--cp-accent); border-color:var(--cp-accent); }
+.primary-button { background:var(--cp-accent); color:var(--cp-accent-fg); border-color:var(--cp-accent); }
+.primary-button:not(:disabled):hover { background:var(--cp-accent-hover); color:var(--cp-accent-fg); }
+:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+a { color:var(--cp-link); } [hidden] { display:none !important; }
+.filters { display:grid; grid-template-columns:repeat(4,minmax(160px,1fr)); gap:12px 16px; margin:12px 0; }
+.filters label { display:flex; flex-direction:column; gap:6px; font-size:12px; font-weight:600; min-width:0; }
+.filters input, .filters select { width:100%; min-width:0; font-weight:400; }
+.inline { display:flex; gap:8px; align-items:center; }
+.inline label.toggle { flex-direction:row; align-items:center; white-space:nowrap; font-weight:400; }
+.toggle input { width:auto; padding:0; margin:0; accent-color:var(--cp-accent); }
+.controls { display:flex; gap:8px 12px; flex-wrap:wrap; align-items:center; margin:12px 0; }
+#result-state { font-variant-numeric:tabular-nums; }
+.grid { border:1px solid var(--cp-border); border-radius:0.625rem; overflow:hidden; }
+.grid-head, .grid-row { display:grid; grid-template-columns:var(--columns); align-items:center; }
+.grid-head { background:var(--cp-surface-soft); font-weight:600; font-size:12px; border-bottom:1px solid var(--cp-border); }
+.grid-head div, .grid-row div { padding:0 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.grid-head div { padding-top:10px; padding-bottom:10px; }
+#viewport { position:relative; overflow:auto; height:62vh; min-height:280px; }
+#spacer { position:relative; width:100%; }
+.grid-row { position:absolute; left:0; right:0; height:36px; border-bottom:1px solid var(--cp-border); cursor:pointer; font-size:13px; }
+.grid-row:hover { background:var(--cp-accent-soft); }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.mono { font-family:Consolas, "Cascadia Mono", monospace; font-size:12px; }
+.pill { display:inline-block; padding:1px 8px; border-radius:999px; background:var(--cp-accent-soft); color:var(--cp-text); font-size:12px; }
+#empty { padding:24px; text-align:center; color:var(--cp-text-muted); }
+#loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:var(--cp-overlay); z-index:10; }
+#loading .box { background:var(--cp-surface); border:1px solid var(--cp-border); border-radius:16px; padding:24px 32px; box-shadow:var(--cp-shadow); min-width:320px; }
+#loading .track { height:6px; }
+dialog { border:1px solid var(--cp-border); border-radius:16px; padding:0; background:var(--cp-surface); color:var(--cp-text); width:min(900px,92vw); box-shadow:var(--cp-shadow); }
+dialog::backdrop { background:rgba(0,0,0,0.35); }
+.dialog-head { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--cp-border); }
+.dialog-body { padding:16px 20px; max-height:70vh; overflow:auto; }
+dl { display:grid; grid-template-columns:170px 1fr; gap:8px 16px; margin:0 0 16px; } dt { color:var(--cp-text-muted); } dd { margin:0; word-break:break-all; }
+#detail-recipients { columns:2 260px; margin:8px 0 0; padding-left:20px; font-size:13px; }
+#detail-recipients .pill { margin-left:6px; font-size:11px; }
+#detail-note { font-size:12px; color:var(--cp-text-muted); margin:4px 0 0; }
+footer { color:var(--cp-text-muted); font-size:12px; line-height:1.6; }
+@media (max-width: 900px) { .metrics, .distribution, .filters { grid-template-columns:repeat(2,minmax(0,1fr)); } #top-senders-list { grid-template-columns:1fr; grid-auto-flow:row; } }
+</style></head><body>
+<div id="loading"><div class="box"><span class="label">Loading report</span><p id="loading-text">Preparing data...</p><div class="track"><div class="fill" id="loading-fill"></div></div></div></div>
+<header><div class="hero-top"><div><span id="origin">Message trace / Exchange Online</span><h1 id="title">Message activity</h1>
+<p class="subtitle" id="subtitle"></p></div>
+<div class="period"><span class="label">Received time range</span><div id="range"></div></div></div>
+<div class="metrics">
+<article class="tile tile-primary"><span class="tile-label">Matching messages</span><svg class="tile-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 6 9 7 9-7"/></svg><strong id="metric-messages">0</strong><small>Unique Message IDs</small></article>
+<article class="tile tile-tinted"><span class="tile-label">Active senders</span><svg class="tile-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><strong id="metric-senders">0</strong><small>Distinct sender addresses</small></article>
+<article class="tile tile-tinted"><span class="tile-label">Average recipients</span><svg class="tile-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10m8 10V4m8 16V7"/></svg><strong id="metric-average">0</strong><small>Recipients per message</small></article>
+<article class="tile"><span class="tile-label">Largest audience</span><svg class="tile-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-1a6 6 0 0 1 12 0v1m2-5a4.5 4.5 0 0 1 5 4.5V20"/></svg><strong id="metric-max">0</strong><small>Highest recipient count</small></article>
+</div>
+<p id="overview-scope" class="caption"></p>
+<div class="distribution" aria-label="Messages by recipient count">
+<div><div class="band-head"><span id="band-label-0">26-30 recipients</span><span id="band-count-0"></span></div><div class="track"><div class="fill" id="band-fill-0"></div></div></div>
+<div><div class="band-head"><span id="band-label-1">31-40 recipients</span><span id="band-count-1"></span></div><div class="track"><div class="fill" id="band-fill-1"></div></div></div>
+<div><div class="band-head"><span id="band-label-2">41-60 recipients</span><span id="band-count-2"></span></div><div class="track"><div class="fill" id="band-fill-2"></div></div></div>
+<div><div class="band-head"><span id="band-label-3">61+ recipients</span><span id="band-count-3"></span></div><div class="track"><div class="fill" id="band-fill-3"></div></div></div>
+</div>
+<section class="top-senders" aria-labelledby="top-senders-heading"><h2 id="top-senders-heading">Top 10 senders</h2>
+<p class="caption">By unique messages in the current view. Click a sender to filter.</p>
+<ol id="top-senders-list"></ol><p id="top-senders-empty" class="muted" hidden>No senders in this view.</p></section>
+</header>
+<nav id="file-set" hidden aria-label="Report files"><span class="label">Report file</span><span id="file-position"></span>
+<a id="prev-file">&larr; Previous</a><select id="file-select" aria-label="Open another file of this report"></select><a id="next-file">Next &rarr;</a></nav>
+<section id="messages"><h2>Messages</h2>
+<div class="filters">
+<label for="search">Search all fields<input id="search" type="search" placeholder="Address, subject, Message ID..." autocomplete="off"></label>
+<div><label for="sender-filter">Sender</label><div class="inline"><input id="sender-filter" type="search" placeholder="Address or part of it" autocomplete="off"><label class="toggle"><input id="sender-exact" type="checkbox">Exact</label></div></div>
+<label for="subject-filter">Subject<input id="subject-filter" type="search" placeholder="Words in the subject" autocomplete="off"></label>
+<label for="recipient-filter" id="recipient-filter-label">Recipient<input id="recipient-filter" type="search" placeholder="Any recipient address" autocomplete="off"></label>
+<label for="date-from">From (date)<input id="date-from" type="date"></label>
+<label for="date-to">To (date, included)<input id="date-to" type="date"></label>
+<label for="count-min">Minimum recipients<input id="count-min" type="number" min="0" step="1" placeholder="No minimum"></label>
+<label for="message-id-filter">Message ID<input id="message-id-filter" type="search" placeholder="Full or partial Message ID" autocomplete="off"></label>
+</div>
+<div class="controls"><label>Sort <select id="sort"><option value="time-desc">Newest first</option><option value="time-asc">Oldest first</option><option value="count-desc">Most recipients first</option><option value="sender">Sender A to Z</option></select></label>
+<button id="clear-filters" type="button">Clear filters</button><button id="export" type="button" class="primary-button">Export view to CSV</button>
+<span id="result-state" class="muted" role="status" aria-live="polite"></span></div>
+<div class="grid" role="table" aria-label="Messages">
+<div class="grid-head" role="row" id="grid-head"></div>
+<div id="viewport"><div id="spacer"></div></div>
+<p id="empty" hidden>No messages match the current filters.</p>
+</div></section>
+<dialog id="detail"><div class="dialog-head"><h2 id="detail-title" style="margin:0">Message details</h2><button id="detail-close" type="button">Close</button></div>
+<div class="dialog-body"><dl id="detail-fields"></dl><div id="detail-recipients-block"><div class="controls"><strong id="detail-recipients-title">Recipients</strong><button id="copy-recipients" type="button">Copy recipients</button></div><p id="detail-note" hidden></p><ol id="detail-recipients"></ol></div></div></dialog>
+<noscript>JavaScript is required to display this report. Open the CSV file with the same name for the complete data.</noscript>
+<footer id="footer"></footer>
+%%CHUNKS%%
+<script id="report-meta" type="application/json">%%META%%</script>
+<script>
+(async () => {
+  "use strict";
+  const el = id => document.getElementById(id);
+  const meta = JSON.parse(el("report-meta").textContent);
+  const number = n => Number(n).toLocaleString("en-GB");
+  const pad = n => String(n).padStart(2, "0");
+  // Times are stored as local wall-clock seconds of the report time zone and displayed with getUTC*.
+  const stamp = s => { const d = new Date(s * 1000); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`; };
+  const withRecipients = !!meta.includeRecipients;
+
+  // ---- Header texts --------------------------------------------------------
+  const limit = Number(meta.limit) || 25;
+  el("title").textContent = meta.title || "Message activity";
+  el("subtitle").textContent = `Unique messages sent to more than ${limit} recipients${meta.scope && meta.scope !== "all senders" ? " by " + meta.scope : ""}, a distribution list counting as one recipient. One row per Message ID.`;
+  const range = el("range");
+  for (const [label, value] of [["From", meta.fileStart], ["To", meta.fileEnd]]) { const line = document.createElement("div"); line.textContent = `${label} ${value}`; range.append(line); }
+  const zone = document.createElement("small"); zone.textContent = `${meta.timeZone} - end excluded`; range.append(zone);
+  if (meta.partCount > 1) { const whole = document.createElement("div"); whole.className = "caption"; whole.style.margin = "8px 0 0"; whole.textContent = `Whole report: ${meta.periodStart} to ${meta.periodEnd}`; range.append(whole); }
+  if (meta.coveragePercent < 100) { const c = document.createElement("div"); c.className = "caption"; c.style.margin = "8px 0 0"; c.textContent = `Data coverage ${meta.coveragePercent}%${meta.coverageNote ? " - " + meta.coverageNote : ""}`; range.append(c); }
+  if (meta.unmeasured > 0) { const u = document.createElement("div"); u.className = "caption"; u.style.margin = "8px 0 0"; u.textContent = `Not counted yet: ${number(meta.unmeasured)} message(s) sent to distribution lists`; range.append(u); }
+  if (meta.afterExpansion > 0) { const u = document.createElement("div"); u.className = "caption"; u.style.margin = "8px 0 0"; u.textContent = `Recipients listed after distribution list expansion for ${number(meta.afterExpansion)} message(s): list as addressed by the sender not available`; range.append(u); }
+  el("footer").textContent = `Received time is the time Exchange Online received the message (message trace), shown in ${meta.timeZone}. Recipient count is the number of recipients before distribution list expansion, as Exchange Online counts them: for a message sent to a distribution list it is read from the route of the message (Submit event). The recipient list shows the recipients as the sender addressed them, distribution lists first: for a message sent to a distribution list, each address was checked in its own route of the message trace, and the members added by the expansion are left out. This file contains e-mail addresses: store and share it accordingly. Generated ${meta.generated} by Recipient Limit Report ${meta.toolVersion || ""}.`;
+  if (!withRecipients) { el("recipient-filter-label").hidden = true; el("copy-recipients").hidden = true; }
+  // Recipient count bands: the first starts just over the limit (26-30, 31-40, 41-60, 61+ for 25).
+  const edges = [limit + 5, limit + 15, limit + 35];
+  el("band-label-0").textContent = `${limit + 1}-${edges[0]} recipients`;
+  el("band-label-1").textContent = `${edges[0] + 1}-${edges[1]} recipients`;
+  el("band-label-2").textContent = `${edges[1] + 1}-${edges[2]} recipients`;
+  el("band-label-3").textContent = `${edges[2] + 1}+ recipients`;
+
+  // ---- Other files of the same report -------------------------------------------
+  if (meta.partCount > 1) {
+    el("file-set").hidden = false;
+    el("file-position").textContent = `${meta.partIndex} of ${meta.partCount} - ${number(meta.rows)} messages`;
+    const select = el("file-select");
+    for (const s of meta.siblings) { const o = document.createElement("option"); o.value = s.file; o.textContent = `${s.index}. ${s.label} (${number(s.rows)} messages)`; o.selected = s.index === meta.partIndex; select.append(o); }
+    select.addEventListener("change", () => { window.location.href = encodeURIComponent(select.value); });
+    const prev = meta.siblings.find(s => s.index === meta.partIndex - 1), next = meta.siblings.find(s => s.index === meta.partIndex + 1);
+    if (prev) el("prev-file").href = encodeURIComponent(prev.file); else el("prev-file").hidden = true;
+    if (next) el("next-file").href = encodeURIComponent(next.file); else el("next-file").hidden = true;
+  }
+
+  // ---- Data loading: JSON -> gzip -> base64 chunks ------------------------------
+  const total = meta.rows;
+  const T = new Float64Array(total), S = new Int32Array(total), J = new Int32Array(total), N = new Int32Array(total), M = new Array(total);
+  const L = new Int32Array(total), X = new Int32Array(total), CS = new Uint8Array(total), RX = new Int32Array(total), RD = new Int32Array(total), RA = new Uint8Array(total);
+  const senders = [], subjects = [], people = [];
+  const RO = new Int32Array(total + 1); let riParts = [], riLength = 0;
+  async function decode(b64) {
+    const bin = atob(b64), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+    return JSON.parse(await new Response(stream).text());
+  }
+  const blocks = Array.from(document.querySelectorAll('script[type="application/x-rlr-chunk"]'));
+  let row = 0;
+  try {
+    for (let b = 0; b < blocks.length; b++) {
+      const c = await decode(blocks[b].textContent);
+      blocks[b].remove();
+      for (const v of c.ds) senders.push(v);
+      for (const v of c.dj) subjects.push(v);
+      if (withRecipients) for (const v of c.dr) people.push(v);
+      for (let i = 0; i < c.t.length; i++, row++) {
+        T[row] = c.t[i]; S[row] = c.s[i]; J[row] = c.j[i]; N[row] = c.n[i]; M[row] = c.m[i];
+        L[row] = c.l[i]; X[row] = c.x[i]; CS[row] = c.c[i];
+        if (withRecipients) { RO[row + 1] = RO[row] + c.rl[i]; RX[row] = c.rx[i]; RD[row] = c.rd[i]; RA[row] = c.ra[i]; }
+      }
+      if (withRecipients) { riParts.push(Int32Array.from(c.ri)); riLength += c.ri.length; }
+      el("loading-text").textContent = `Loading ${number(row)} of ${number(total)} messages...`;
+      el("loading-fill").style.width = `${total ? row / total * 100 : 100}%`;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } catch (error) {
+    el("loading-text").textContent = "This browser cannot open the compressed data (a recent Edge, Chrome or Firefox is required). Use the CSV file with the same name.";
+    return;
+  }
+  const RI = new Int32Array(riLength); { let o = 0; for (const p of riParts) { RI.set(p, o); o += p.length; } riParts = null; }
+  el("loading").hidden = true;
+
+  // ---- Columns -------------------------------------------------------------------
+  const columns = [
+    { title: "Received time", width: "160px", cell: i => stamp(T[i]) },
+    { title: "Sender", width: "minmax(160px,1.1fr)", cell: i => senders[S[i]] },
+    { title: "Subject", width: "minmax(180px,1.6fr)", cell: i => subjects[J[i]] },
+    { title: "Recipients", width: "96px", cls: "num", cell: i => N[i] < 0 ? "" : number(N[i]) },
+    { title: "Message ID", width: "minmax(160px,1.2fr)", cls: "mono", cell: i => M[i] }
+  ];
+  if (withRecipients) columns.splice(2, 0, { title: "Recipient addresses", width: "minmax(160px,1.2fr)", cell: i => recipientsPreview(i) });
+  document.documentElement.style.setProperty("--columns", columns.map(c => c.width).join(" "));
+  for (const c of columns) { const d = document.createElement("div"); d.textContent = c.title; if (c.cls) d.className = c.cls; el("grid-head").append(d); }
+  function recipientList(i) { const out = []; for (let k = RO[i]; k < RO[i + 1]; k++) out.push(people[RI[k]]); return out; }
+  function recipientsPreview(i) { const n = RO[i + 1] - RO[i]; if (!n) return ""; const first = people[RI[RO[i]]]; return n > 1 ? `${first} (+${n - 1})` : first; }
+
+  // ---- Filtering -----------------------------------------------------------------
+  let view = new Int32Array(0);
+  const dictionaryMask = (dictionary, query, exact) => {
+    const mask = new Uint8Array(dictionary.length), q = query.toLowerCase();
+    for (let i = 0; i < dictionary.length; i++) { const v = (dictionary[i] || "").toLowerCase(); mask[i] = exact ? (v === q ? 1 : 0) : (v.includes(q) ? 1 : 0); }
+    return mask;
+  };
+  const dayStart = value => { if (!value) return null; const [y, m, d] = value.split("-").map(Number); return Date.UTC(y, m - 1, d) / 1000; };
+  function applyFilters() {
+    const search = el("search").value.trim(), sender = el("sender-filter").value.trim(), subject = el("subject-filter").value.trim();
+    const recipient = withRecipients ? el("recipient-filter").value.trim() : "", messageId = el("message-id-filter").value.trim().toLowerCase();
+    const from = dayStart(el("date-from").value), toStart = dayStart(el("date-to").value), to = toStart == null ? null : toStart + 86400;
+    const min = el("count-min").value === "" ? null : Number(el("count-min").value);
+    const senderMask = sender ? dictionaryMask(senders, sender, el("sender-exact").checked) : null;
+    const subjectMask = subject ? dictionaryMask(subjects, subject, false) : null;
+    const recipientMask = recipient ? dictionaryMask(people, recipient, false) : null;
+    let searchSender = null, searchSubject = null, searchPeople = null; const q = search.toLowerCase();
+    if (search) { searchSender = dictionaryMask(senders, search, false); searchSubject = dictionaryMask(subjects, search, false); if (withRecipients) searchPeople = dictionaryMask(people, search, false); }
+    const hasPerson = (i, mask) => { for (let k = RO[i]; k < RO[i + 1]; k++) if (mask[RI[k]]) return true; return false; };
+    const out = new Int32Array(total); let n = 0;
+    for (let i = 0; i < total; i++) {
+      if (senderMask && !senderMask[S[i]]) continue;
+      if (subjectMask && !subjectMask[J[i]]) continue;
+      if (from != null && T[i] < from) continue;
+      if (to != null && T[i] >= to) continue;
+      if (min != null && N[i] < min) continue;
+      if (messageId && !M[i].toLowerCase().includes(messageId)) continue;
+      if (recipientMask && !hasPerson(i, recipientMask)) continue;
+      if (search && !(searchSender[S[i]] || searchSubject[J[i]] || M[i].toLowerCase().includes(q) || (searchPeople && hasPerson(i, searchPeople)))) continue;
+      out[n++] = i;
+    }
+    view = out.slice(0, n);
+    sortView();
+    overview();
+    render(true);
+  }
+  function sortView() {
+    const mode = el("sort").value;
+    const cmp = mode === "time-asc" ? (a, b) => T[a] - T[b] || a - b
+      : mode === "count-desc" ? (a, b) => N[b] - N[a] || T[b] - T[a]
+      : mode === "sender" ? (a, b) => (senders[S[a]] < senders[S[b]] ? -1 : senders[S[a]] > senders[S[b]] ? 1 : T[b] - T[a])
+      : (a, b) => T[b] - T[a] || b - a;
+    view.sort(cmp);
+  }
+
+  // ---- Overview (tiles, bands, top senders) -------------------------------------
+  function overview() {
+    const perSender = new Map(); let counted = 0, sum = 0, max = 0; const bands = [0, 0, 0, 0];
+    for (const i of view) {
+      perSender.set(S[i], (perSender.get(S[i]) || 0) + 1);
+      const c = N[i]; if (c < 0) continue;
+      counted++; sum += c; if (c > max) max = c;
+      bands[c <= edges[0] ? 0 : c <= edges[1] ? 1 : c <= edges[2] ? 2 : 3]++;
+    }
+    el("metric-messages").textContent = number(view.length);
+    el("metric-senders").textContent = number(perSender.size);
+    el("metric-average").textContent = counted ? (sum / counted).toLocaleString("en-GB", { maximumFractionDigits: 1 }) : "0";
+    el("metric-max").textContent = number(max);
+    el("overview-scope").textContent = view.length === total ? `All ${number(total)} messages of this file.` : `Filtered view: ${number(view.length)} of ${number(total)} messages.`;
+    for (let b = 0; b < 4; b++) {
+      const percent = counted ? bands[b] / counted * 100 : 0;
+      el(`band-count-${b}`).textContent = `${number(bands[b])} / ${Math.round(percent)}%`;
+      el(`band-fill-${b}`).style.width = `${percent}%`;
+    }
+    const ranked = Array.from(perSender.entries()).sort((a, b) => b[1] - a[1] || (senders[a[0]] < senders[b[0]] ? -1 : 1)).slice(0, 10);
+    const list = el("top-senders-list"), fragment = document.createDocumentFragment();
+    list.style.setProperty("--ranking-rows", Math.max(1, Math.ceil(ranked.length / 2)));
+    for (const [index, count] of ranked) {
+      const item = document.createElement("li"), button = document.createElement("button");
+      button.type = "button"; button.className = "sender-rank"; button.title = senders[index];
+      button.style.setProperty("--share", `${ranked[0][1] ? count / ranked[0][1] * 100 : 0}%`);
+      const name = document.createElement("span"), value = document.createElement("span");
+      name.className = "sender-rank-name"; value.className = "sender-rank-count";
+      name.textContent = senders[index];
+      value.textContent = `${number(count)} / ${(view.length ? count / view.length * 100 : 0).toLocaleString("en-GB", { maximumFractionDigits: 1 })}%`;
+      button.addEventListener("click", () => { el("sender-filter").value = senders[index]; el("sender-exact").checked = true; applyFilters(); el("messages").scrollIntoView({ behavior: "smooth" }); });
+      button.append(name, value); item.append(button); fragment.append(item);
+    }
+    list.replaceChildren(fragment);
+    el("top-senders-empty").hidden = ranked.length > 0;
+  }
+
+  // ---- Virtual scrolling: only the visible rows exist in the page ---------------------
+  const ROW = 36, viewport = el("viewport"), spacer = el("spacer");
+  function render(reset) {
+    if (reset) viewport.scrollTop = 0;
+    spacer.style.height = `${view.length * ROW}px`;
+    el("empty").hidden = view.length > 0;
+    el("result-state").textContent = `${number(view.length)} messages`;
+    const first = Math.max(0, Math.floor(viewport.scrollTop / ROW) - 10);
+    const last = Math.min(view.length, Math.ceil((viewport.scrollTop + viewport.clientHeight) / ROW) + 10);
+    const fragment = document.createDocumentFragment();
+    for (let p = first; p < last; p++) {
+      const i = view[p], line = document.createElement("div");
+      line.className = "grid-row"; line.setAttribute("role", "row"); line.style.top = `${p * ROW}px`; line.dataset.row = i; line.tabIndex = 0;
+      for (const c of columns) { const cell = document.createElement("div"); const text = c.cell(i); cell.textContent = text; cell.title = text; if (c.cls) cell.className = c.cls; line.append(cell); }
+      fragment.append(line);
+    }
+    spacer.replaceChildren(fragment);
+  }
+  let ticking = false;
+  viewport.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { render(false); ticking = false; }); } });
+  window.addEventListener("resize", () => render(false));
+
+  // ---- Details dialog ------------------------------------------------------------------
+  function showDetails(i) {
+    const lists = L[i];
+    const countText = N[i] < 0 ? "Not counted yet" : number(N[i]) + (lists ? ` (before expansion, ${CS[i] === 2 ? "Receive" : "Submit"} event of the message trace)` : "");
+    const fields = [["Received time", `${stamp(T[i])} (${meta.timeZone})`], ["Sender", senders[S[i]]], ["Subject", subjects[J[i]]],
+      ["Recipient count", countText]];
+    if (lists) fields.push(["Distribution lists", `${number(lists)}, expanded by Exchange Online: ${number(X[i])} addresses in the message trace`]);
+    fields.push(["Message ID", M[i]]);
+    const dl = el("detail-fields"); dl.replaceChildren();
+    for (const [k, v] of fields) { const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = k; dd.textContent = v; dl.append(dt, dd); }
+    const list = el("detail-recipients"); list.replaceChildren();
+    const note = el("detail-note"); note.hidden = true;
+    if (withRecipients) {
+      const people = recipientList(i), shownLists = RD[i], after = RA[i] === 1;
+      el("detail-recipients-title").textContent = after ? `Recipients after expansion (${number(people.length + RX[i])} addresses in the message trace)` : `Recipients (${number(people.length + RX[i])})`;
+      if (lists && after) { note.textContent = "The list as addressed by the sender is not available for this message (routes not read yet, or more than Counting.MaxRoutesPerMessage to read): distribution lists first, then every address of the message trace after expansion."; note.hidden = false; }
+      else if (lists) { note.textContent = "As addressed by the sender, distribution lists first. Each address was checked in its own route of the message trace: the members added by the expansion of the lists are not listed."; note.hidden = false; }
+      people.forEach((p, k) => {
+        const li = document.createElement("li"); li.textContent = p;
+        if (k < shownLists) { const tag = document.createElement("span"); tag.className = "pill"; tag.textContent = "distribution list"; li.append(tag); }
+        list.append(li);
+      });
+      if (RX[i] > 0) { const li = document.createElement("li"); li.className = "muted"; li.textContent = `... and ${number(RX[i])} more (not listed in the report)`; list.append(li); }
+      el("copy-recipients").onclick = () => navigator.clipboard && navigator.clipboard.writeText(people.join("; "));
+    }
+    el("detail-recipients-block").hidden = !withRecipients;
+    el("detail").showModal();
+  }
+  spacer.addEventListener("click", e => { const r = e.target.closest(".grid-row"); if (r) showDetails(Number(r.dataset.row)); });
+  spacer.addEventListener("keydown", e => { if (e.key === "Enter") { const r = e.target.closest(".grid-row"); if (r) showDetails(Number(r.dataset.row)); } });
+  el("detail-close").addEventListener("click", () => el("detail").close());
+
+  // ---- Export of the current view --------------------------------------------------------
+  el("export").addEventListener("click", () => {
+    const esc = v => { v = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return /[";\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+    const header = [`Received time (${meta.timeZone})`, "Sender"]; if (withRecipients) header.push("Recipients"); header.push("Subject", "Recipient count", "Distribution lists", "Message ID");
+    const parts = ["\ufeff" + header.map(esc).join(";") + "\r\n"]; let buffer = [];
+    for (const i of view) {
+      const cells = [stamp(T[i]), senders[S[i]]]; if (withRecipients) cells.push(recipientList(i).join("; ") + (RX[i] > 0 ? `; (+${RX[i]} more)` : "") + (RA[i] === 1 ? "; (addresses after distribution list expansion)" : ""));
+      cells.push(subjects[J[i]], N[i] < 0 ? "" : N[i], L[i], M[i]);
+      buffer.push(cells.map(esc).join(";"));
+      if (buffer.length === 5000) { parts.push(buffer.join("\r\n") + "\r\n"); buffer = []; }
+    }
+    if (buffer.length) parts.push(buffer.join("\r\n") + "\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(parts, { type: "text/csv;charset=utf-8" }));
+    a.download = "filtered-view.csv"; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+
+  // ---- Wiring ----------------------------------------------------------------------------
+  let timer = null;
+  const later = () => { clearTimeout(timer); timer = setTimeout(applyFilters, 250); };
+  for (const id of ["search", "sender-filter", "subject-filter", "recipient-filter", "message-id-filter", "count-min"]) el(id).addEventListener("input", later);
+  for (const id of ["sender-exact", "date-from", "date-to"]) el(id).addEventListener("change", applyFilters);
+  el("sort").addEventListener("change", () => { sortView(); render(true); });
+  el("clear-filters").addEventListener("click", () => {
+    for (const id of ["search", "sender-filter", "subject-filter", "recipient-filter", "message-id-filter", "count-min", "date-from", "date-to"]) el(id).value = "";
+    el("sender-exact").checked = false; applyFilters();
+  });
+  if (total) { const lo = stamp(T.reduce((a, b) => Math.min(a, b), Infinity)).slice(0, 10), hi = stamp(T.reduce((a, b) => Math.max(a, b), 0)).slice(0, 10); for (const id of ["date-from", "date-to"]) { el(id).min = lo; el(id).max = hi; } }
+  applyFilters();
+})();
+</script>
+</body></html>

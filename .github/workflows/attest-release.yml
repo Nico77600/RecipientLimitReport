@@ -1,0 +1,47 @@
+name: Attest release provenance
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to attest; leave empty to use the current ref
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag || github.ref }}
+
+      - name: Collect release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ github.event.release.tag_name || inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir dist
+          release_tag="${RELEASE_REF##*/}"
+          if gh release view "$release_tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release download "$release_tag" --repo "$GITHUB_REPOSITORY" --dir dist
+          fi
+          if ! find dist -type f -print -quit | grep -q .; then
+            archive="dist/${GITHUB_REPOSITORY##*/}-${release_tag}.tar.gz"
+            tar --exclude=.git --exclude=./dist -czf "$archive" .
+          fi
+
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: 'dist/*'
