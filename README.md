@@ -11,7 +11,8 @@
   <a href="#same-report-as-purview-dlp-report"><b>Same report as Purview DLP Report</b></a> &nbsp;&middot;&nbsp;
   <a href="#reports"><b>Reports</b></a> &nbsp;&middot;&nbsp;
   <a href="#quick-start"><b>Quick start</b></a> &nbsp;&middot;&nbsp;
-  <a href="package/docs/RecipientLimitReport-Guide.md"><b>Administrator guide</b></a>
+  <a href="package/docs/RecipientLimitReport-UserGuide.md"><b>User guide</b></a> &nbsp;&middot;&nbsp;
+  <a href="package/docs/RecipientLimitReport-Guide.md"><b>Developer guide</b></a>
 </p>
 
 > [!IMPORTANT]
@@ -100,14 +101,16 @@ notepad .\config\RecipientLimitReport.config.psd1      # TenantId, AppId, Certif
 .\Invoke-RecipientLimitReport.ps1 -Mode Collect         # daily collection (scheduled task)
 ```
 
-The message trace keeps 90 days: schedule the daily collection. The `package` folder of this repository holds exactly the files needed to run Recipient Limit Report, with the guide. The zip of each [release](https://github.com/Nico77600/RecipientLimitReport/releases) contains the same run-time files with the HTML guide; `.\tools\New-RlrPackage.ps1` builds that zip content from the repository.
+The message trace keeps 90 days: schedule the daily collection. The `package` folder of this repository holds exactly the files needed to run Recipient Limit Report, with both guides. The zip of each [release](https://github.com/Nico77600/RecipientLimitReport/releases) contains the same run-time files with the HTML guides; `.\tools\New-RlrPackage.ps1` builds that zip content from the repository.
 
 ## Documentation
 
-The **administrator guide** covers the project background, the application registration with a certificate, every setting, the scheduled collection, the count before distribution list expansion, how to read the report, volume and duration, troubleshooting, the lab measurements and the internals:
+| Guide | Content |
+|---|---|
+| **[User guide](package/docs/RecipientLimitReport-UserGuide.md)** | What is needed before the first report, the one-time setup in the `package` folder or the extracted release, then one command per everyday question: a period, the daily collection, the state of the database. Where the files are written, how to read the report, the exit codes, and the situations that come back with what to do. |
+| **[Developer guide](package/docs/RecipientLimitReport-Guide.md)** | Everything else: the project background, how the tool works, the prerequisites and the application registration with a certificate, every configuration key, the scheduled collection, the count before distribution list expansion, how to read the report, output files and splitting, volume and duration, the internals and the code map, how to modify and test the tool, troubleshooting, the lab measurements and the database schema. |
 
-- [package/docs/RecipientLimitReport-Guide.md](package/docs/RecipientLimitReport-Guide.md)
-- `package/docs/RecipientLimitReport-Guide.html` — the same guide as a single HTML file (download it and open it locally)
+Both guides also exist as a single HTML file with a light and a dark theme (`package/docs/RecipientLimitReport-UserGuide.html`, `package/docs/RecipientLimitReport-Guide.html`): download them and open them locally, or use the copies in the release zip.
 
 ## Tests
 
@@ -115,7 +118,7 @@ The **administrator guide** covers the project background, the application regis
 Invoke-Pester -Path .\tests      # Pester 5+, in-memory message trace API, no connection to Microsoft 365
 ```
 
-`tools\Build-Documentation.ps1` rebuilds the HTML guide; `tools\New-ReadmeImages.ps1` renders the graphics of this page from the guide, in a light and a dark version.
+`tools\Build-Documentation.ps1` rebuilds the HTML guides; `tools\New-ReadmeImages.ps1` renders the graphics of this page from the guide, in a light and a dark version.
 
 ## License
 

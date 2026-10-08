@@ -2,7 +2,7 @@
 
 A PowerShell 7 tool that reads the Exchange Online message trace and writes CSV and HTML reports of the messages sent to more than 25 recipients.
 
-This folder contains everything needed to run the tool: `Invoke-RecipientLimitReport.ps1`, the module and its C# engine, the configuration, the report template, the SQLite library and the guide. Tests and build tools stay outside it, in the repository.
+This folder contains everything needed to run the tool: `Invoke-RecipientLimitReport.ps1`, the module and its C# engine, the configuration, the report template, the SQLite library and the guides. Tests and build tools stay outside it, in the repository.
 
 > [!IMPORTANT]
 > Files downloaded from the Internet may be blocked by Windows. Unblock them once, from this folder:
@@ -35,7 +35,7 @@ notepad .\config\RecipientLimitReport.config.psd1      # TenantId, application, 
 | Item | Role |
 |---|---|
 | `config\` | Configuration file to fill in. |
-| `docs\` | Administrator guide, Markdown and self-contained HTML. |
+| `docs\` | User and developer guides, Markdown and self-contained HTML. |
 | `lib\` | Bundled SQLite libraries. |
 | `src\` | C# engine source, compiled on first use. |
 | `templates\` | HTML report template. |
@@ -48,7 +48,8 @@ notepad .\config\RecipientLimitReport.config.psd1      # TenantId, application, 
 
 ## Documentation
 
-- [Administrator guide](docs/RecipientLimitReport-Guide.md) - also `docs/RecipientLimitReport-Guide.html`, a single file to open locally
+- [User guide](docs/RecipientLimitReport-UserGuide.md) - also `docs/RecipientLimitReport-UserGuide.html`, a single file to open locally
+- [Developer guide](docs/RecipientLimitReport-Guide.md) - also `docs/RecipientLimitReport-Guide.html`
 
 Project page, releases and change log: https://github.com/Nico77600/RecipientLimitReport
 

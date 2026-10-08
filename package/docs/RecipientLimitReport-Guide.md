@@ -1,14 +1,14 @@
 ---
 title: Recipient Limit Report
-subtitle: Administrator guide
+subtitle: Developer guide
 version: 1.0.1
 author: Nicolas Fabert
 updated: 2026-10-08
 ---
 
-# Recipient Limit Report — Administrator guide
+# Recipient Limit Report — Developer guide
 
-> Reports the Exchange Online messages sent to **more than 25 recipients** — counted as Exchange Online counts them, a **distribution list being one recipient** — as CSV and HTML files, **one row per Message ID**. The source is the Exchange Online **message trace**; the report is the same as the one of Purview DLP Report.
+> Reports the Exchange Online messages sent to **more than 25 recipients** — counted as Exchange Online counts them, a **distribution list being one recipient** — as CSV and HTML files, **one row per Message ID**. The source is the Exchange Online **message trace**; the report is the same as the one of Purview DLP Report. The commands used every day are in the [user guide](RecipientLimitReport-UserGuide.md).
 
 > [!IMPORTANT]
 > Files downloaded from the Internet may be blocked by Windows and fail to run. Before using this project, unblock every file in the downloaded folder:
@@ -193,11 +193,11 @@ Check without connecting | `.\Invoke-RecipientLimitReport.ps1 -Mode Status` — 
 | `src\RecipientLimitReport.Engine.cs` | C# engine: requests, database, CSV/HTML writing |
 | `templates\Report.template.html` | Look and behaviour of the HTML report (the page of Purview DLP Report) |
 | `lib\sqlite\` | SQLite libraries (see `THIRD-PARTY-NOTICES.md`) |
-| `docs\RecipientLimitReport-Guide.html` | This guide |
+| `docs\RecipientLimitReport-UserGuide.html` · `docs\RecipientLimitReport-Guide.html` | The user guide and this guide |
 | `data\` · `reports\` · `logs\` · `bin\` | Created at run time — the package contains **no database**, the first run creates an empty one. **Back up `data\`**: it is the only history beyond 90 days. |
 
 > [!NOTE]
-> The package holds only what is needed to run. The git repository of the tool also contains this Markdown guide in `package\docs\`, `tests\` (automated tests) and `tools\` (documentation builder, package builder) — see chapters 12 to 14.
+> The package holds only what is needed to run. The git repository of the tool also contains this Markdown guide and the user guide in `package\docs\`, `tests\` (automated tests) and `tools\` (documentation builder, package builder) — see chapters 12 to 14.
 
 <!-- icon: settings -->
 ## 6. Configuration
@@ -564,7 +564,7 @@ The engine selects the messages of the period over the limit, keeps **one row pe
 | Add a period ("current week"…) | `ValidateSet` of `-Range` **and** of `Resolve-RlrPeriod`, a new `switch` branch, a test in *Periods*. |
 | Change the console output | Always go through `Write-RlrStep`, `Write-RlrItem`, `Write-RlrTableRow`, `Write-RlrSummary`: they also write the log. |
 | Update the SQLite libraries | nuget.org packages `Microsoft.Data.Sqlite.Core` + `SQLitePCLRaw.*` (same version): `lib/net8.0` into `package\lib\sqlite`, `runtimes/win-*/native/e_sqlite3.dll` into `package\lib\sqlite\runtimes`. Delete `bin\`, run the tests, update `THIRD-PARTY-NOTICES.md`. |
-| Change this guide | Edit `package\docs\RecipientLimitReport-Guide.md` (callouts `> [!NOTE]`, blocks `cards`, `steps`, `flow`), then run `.\tools\Build-Documentation.ps1`. |
+| Change this guide | Edit `package\docs\RecipientLimitReport-Guide.md` or `package\docs\RecipientLimitReport-UserGuide.md` (callouts `> [!NOTE]`, blocks `cards`, `steps`, `flow`), then run `.\tools\Build-Documentation.ps1`. |
 
 ### Pitfalls of the message trace API (lab, 2026-10-02 and 2026-10-05)
 
@@ -730,7 +730,7 @@ Code | Update the code and the comments, in English.
 Version | Update the version everywhere, and `CHANGELOG.md`.
 Tests | `Invoke-Pester -Path .\tests` — all green.
 Real data | For a change of the collection, the count or the engine: one live run on a known period, compared with the previous version.
-Documentation | Update this guide, then `.\tools\Build-Documentation.ps1` to regenerate the HTML.
+Documentation | Update this guide and the user guide, then `.\tools\Build-Documentation.ps1` to regenerate the HTML.
 Release | `git add -A`, `git commit`, `git tag vX.Y.Z`.
 Package | `.\tools\New-RlrPackage.ps1` — copies the files needed to run into `..\package\RecipientLimitReport-X.Y.Z`, tenant values emptied, no database. Zip this folder to deliver it.
 ```

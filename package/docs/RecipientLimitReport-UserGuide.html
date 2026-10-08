@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipient Limit Report - User guide</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef; --cp-bg-elevated: #fcfbf8; --cp-surface: #ffffff; --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede; --cp-border-strong: #919191; --cp-text: #242424; --cp-text-muted: #5c5c5c; --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b; --cp-accent-hover: #9a1a41; --cp-accent-soft: rgba(177, 31, 75, 0.08); --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a; --cp-danger: #dc2626; --cp-warning: #f59e0b; --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12); --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86); --cp-panel-strong: rgba(255, 255, 255, 0.96); --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a; --cp-bg-elevated: #343231; --cp-surface: #292929; --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747; --cp-border-strong: #5f5f5f; --cp-text: #dedede; --cp-text-muted: #919191; --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1; --cp-accent-hover: #fb7b91; --cp-accent-soft: rgba(253, 142, 161, 0.14); --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80; --cp-danger: #f87171; --cp-warning: #fbbf24; --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32); --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72); --cp-panel-strong: rgba(41, 41, 41, 0.96); --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body { margin: 0; background: var(--cp-bg); color: var(--cp-text); font: 15.5px/1.7 "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+a { color: var(--cp-link); text-decoration: none; } a:hover { text-decoration: underline; }
+.icon { width: 22px; height: 22px; } .icon-sm { width: 16px; height: 16px; flex-shrink: 0; } .icon-xs { width: 12px; height: 12px; }
+button { font: inherit; color: var(--cp-text); background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 0.625rem; cursor: pointer; }
+button:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 2px; }
+
+/* ---- Sidebar -------------------------------------------------------------------- */
+aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--cp-bg-elevated); border-right: 1px solid var(--cp-border); padding: 24px 16px 32px; }
+.brand { display: flex; gap: 12px; align-items: center; padding: 4px 8px 20px; border-bottom: 1px solid var(--cp-border); margin-bottom: 12px; }
+.brand-logo { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--cp-accent); color: var(--cp-accent-fg); }
+.brand-name { font-weight: 700; font-size: 15px; line-height: 1.2; } .brand-sub { font-size: 12px; color: var(--cp-text-muted); }
+.nav-part { margin: 20px 8px 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cp-accent); }
+.nav-part span { color: var(--cp-text-muted); font-weight: 600; letter-spacing: 0.04em; }
+aside a { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin: 1px 0; border-radius: 0.625rem; color: var(--cp-text); font-size: 13.5px; line-height: 1.35; border-left: 3px solid transparent; }
+aside a:hover { background: var(--cp-accent-soft); text-decoration: none; }
+aside a.active { background: var(--cp-accent-soft); border-left-color: var(--cp-accent); font-weight: 600; }
+.nav-badge { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; background: var(--cp-surface-soft); color: var(--cp-text-muted); border: 1px solid var(--cp-border); }
+aside a.active .nav-badge { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+
+/* ---- Main -------------------------------------------------------------------------- */
+main { padding: 40px 56px 80px; max-width: 1080px; width: 100%; }
+.hero { position: relative; overflow: hidden; border: 1px solid var(--cp-border); border-top: 4px solid var(--cp-accent); border-radius: 16px; padding: 36px 40px 32px; margin-bottom: 40px; background: linear-gradient(125deg, var(--cp-surface) 40%, var(--cp-accent-soft)); }
+.hero::before { content: ""; position: absolute; width: 320px; height: 320px; right: -110px; top: -170px; border: 44px solid var(--cp-highlight); border-radius: 50%; pointer-events: none; }
+.hero-top { position: relative; display: flex; align-items: center; gap: 18px; }
+.hero-logo { width: 60px; height: 60px; border-radius: 16px; display: grid; place-items: center; background: var(--cp-accent); color: var(--cp-accent-fg); flex-shrink: 0; }
+.hero-logo .icon { width: 32px; height: 32px; }
+.eyebrow, .section-eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cp-accent); }
+.hero h1 { font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; margin: 4px 0 0; }
+#theme { margin-left: auto; padding: 8px 10px; display: grid; place-items: center; }
+.badges { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 18px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 12.5px; background: var(--cp-surface); border: 1px solid var(--cp-border); color: var(--cp-text-muted); }
+.badge-accent { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); font-weight: 600; }
+.lead { position: relative; font-size: 17.5px; line-height: 1.6; max-width: 760px; margin: 0 0 24px; }
+
+.part { display: flex; align-items: baseline; gap: 14px; margin: 56px 0 20px; padding-bottom: 10px; border-bottom: 2px solid var(--cp-accent); }
+.part-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cp-accent); }
+.part-name { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+
+.section { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px; padding: 32px 40px 28px; margin: 0 0 28px; box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14); }
+.section-head { display: flex; align-items: center; gap: 16px; padding-bottom: 18px; margin-bottom: 8px; border-bottom: 1px solid var(--cp-border); }
+.section-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--cp-accent-soft); color: var(--cp-accent); flex-shrink: 0; }
+.section-icon .icon { width: 26px; height: 26px; }
+.section h2 { font-size: 25px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 0; line-height: 1.2; }
+.section-body > :first-child { margin-top: 16px; }
+h3 { font-size: 17.5px; font-weight: 650; margin: 36px 0 12px; padding-left: 12px; border-left: 3px solid var(--cp-accent); line-height: 1.3; }
+p { margin: 12px 0; } ul, ol { padding-left: 22px; } li { margin: 6px 0; } li::marker { color: var(--cp-accent); }
+strong { font-weight: 650; }
+code { font-family: Consolas, "Courier New", Courier, monospace; font-size: 0.88em; background: var(--cp-surface-soft); border: 1px solid var(--cp-border); padding: 1px 6px; border-radius: 6px; }
+kbd { font-family: Consolas, monospace; font-size: 0.85em; padding: 1px 7px; border: 1px solid var(--cp-border-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--cp-surface-soft); }
+hr { border: 0; border-top: 1px solid var(--cp-border); margin: 28px 0; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 16px 0 20px; border: 1px solid var(--cp-border); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.55; }
+th { text-align: left; font-weight: 650; font-size: 12.5px; letter-spacing: 0.02em; color: var(--cp-text-muted); background: var(--cp-surface-soft); padding: 11px 16px; border-bottom: 1px solid var(--cp-border); }
+td { padding: 11px 16px; border-bottom: 1px solid var(--cp-border); vertical-align: top; }
+td:first-child { font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--cp-accent-soft); }
+td code { white-space: nowrap; }
+
+/* Code */
+.code { margin: 16px 0 20px; border: 1px solid var(--cp-border); border-radius: 12px; overflow: hidden; background: var(--cp-surface-soft); }
+.code-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 16px; border-bottom: 1px solid var(--cp-border); font-size: 12px; font-weight: 600; color: var(--cp-text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.copy { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; font-size: 12px; text-transform: none; letter-spacing: 0; }
+.copy.done { color: var(--cp-success); border-color: var(--cp-success); }
+.code pre { margin: 0; padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6; }
+.code pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+/* Callouts */
+.markdown-alert { --tone: var(--cp-link); margin: 18px 0; padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--cp-border)); border-left: 4px solid var(--tone); border-radius: 12px; background: color-mix(in srgb, var(--tone) 7%, var(--cp-surface)); }
+.markdown-alert p { margin: 6px 0; }
+.markdown-alert-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--tone); margin: 0 0 4px !important; }
+.markdown-alert-tip { --tone: var(--cp-success); } .markdown-alert-important { --tone: var(--cp-accent); }
+.markdown-alert-warning { --tone: var(--cp-warning); } .markdown-alert-caution { --tone: var(--cp-danger); }
+
+/* Cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 18px 0 22px; position: relative; }
+.card-item { display: flex; gap: 14px; padding: 16px 18px; border: 1px solid var(--cp-border); border-radius: 14px; background: var(--cp-surface); transition: transform 160ms ease, border-color 160ms ease; }
+.card-item:hover { transform: translateY(-2px); border-color: var(--cp-accent); }
+.card-icon { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--cp-accent-soft); color: var(--cp-accent); flex-shrink: 0; }
+.card-title { font-weight: 700; font-size: 14.5px; line-height: 1.3; margin: 2px 0 4px; }
+.card-text { font-size: 13.5px; line-height: 1.5; color: var(--cp-text-muted); }
+
+/* Steps */
+.steps { list-style: none; padding: 0; margin: 18px 0 22px; position: relative; }
+.steps li { position: relative; display: flex; gap: 16px; margin: 0; padding: 0 0 18px; }
+.steps li:not(:last-child)::before { content: ""; position: absolute; left: 16px; top: 36px; bottom: 2px; width: 2px; background: var(--cp-border); }
+.step-num { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--cp-accent); color: var(--cp-accent-fg); box-shadow: 0 0 0 4px var(--cp-accent-soft); }
+.step-body { padding-top: 5px; } .step-title { font-weight: 700; font-size: 15px; line-height: 1.35; }
+.step-text { color: var(--cp-text-muted); font-size: 14.5px; margin-top: 2px; }
+
+/* Flow */
+.flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 6px; margin: 20px 0 24px; padding: 20px; border-radius: 14px; background: var(--cp-surface-soft); border: 1px dashed var(--cp-border-strong); }
+.flow-node { flex: 1 1 130px; min-width: 120px; text-align: center; padding: 16px 12px; border-radius: 12px; background: var(--cp-surface); border: 1px solid var(--cp-border); }
+.flow-icon { width: 42px; height: 42px; margin: 0 auto 8px; border-radius: 12px; display: grid; place-items: center; background: var(--cp-accent-soft); color: var(--cp-accent); }
+.flow-title { font-weight: 700; font-size: 14px; line-height: 1.3; } .flow-text { font-size: 12.5px; color: var(--cp-text-muted); line-height: 1.4; margin-top: 4px; }
+.flow-arrow { flex: 0 0 auto; min-width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--cp-border-strong); padding: 0 2px; }
+.flow-arrow svg { width: 44px; height: 14px; color: var(--cp-accent); }
+.flow-label { font-size: 12px; font-weight: 700; color: var(--cp-accent); } .flow-sub { font-size: 11px; color: var(--cp-text-muted); text-align: center; max-width: 110px; line-height: 1.3; }
+
+/* Figures */
+figure { margin: 18px 0 24px; }
+figure img { display: block; max-width: 100%; border: 1px solid var(--cp-border); border-radius: 12px; box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14); cursor: zoom-in; }
+figcaption { font-size: 13px; color: var(--cp-text-muted); margin-top: 8px; text-align: center; }
+dialog#zoom { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+dialog#zoom::backdrop { background: rgba(0, 0, 0, 0.7); }
+dialog#zoom img { max-width: 96vw; max-height: 94vh; border-radius: 12px; cursor: zoom-out; display: block; }
+
+#to-top { position: fixed; right: 24px; bottom: 24px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--cp-accent); color: var(--cp-accent-fg); border: 0; box-shadow: var(--cp-shadow); opacity: 0; pointer-events: none; transition: opacity 200ms; }
+#to-top.visible { opacity: 1; pointer-events: auto; } #to-top:hover { background: var(--cp-accent-hover); color: var(--cp-accent-fg); }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--cp-border); font-size: 12.5px; color: var(--cp-text-muted); text-align: center; }
+
+@media (max-width: 1000px) {
+  body { display: block; }
+  aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--cp-border); }
+  main { padding: 24px 16px 60px; } .section { padding: 24px 20px; } .hero { padding: 28px 22px; }
+}
+@media print {
+  body { display: block; background: #fff; } aside, #to-top, #theme, .copy { display: none !important; }
+  main { padding: 0; max-width: none; } .section { break-inside: avoid-page; box-shadow: none; } .part { break-before: page; }
+}
+</style></head><body>
+<aside><div class="brand"><div class="brand-logo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="brand-name">Recipient Limit Report</div><div class="brand-sub">User guide · v1.0.1</div></div></div>
+<nav aria-label="Contents"><div class="nav-part">Part I <span>Start here</span></div><a href="#prerequisites" data-target="prerequisites"><span class="nav-badge">1</span><span class="nav-text">Prerequisites</span></a><a href="#one-time-setup" data-target="one-time-setup"><span class="nav-badge">2</span><span class="nav-text">One-time setup</span></a><div class="nav-part">Part II <span>Everyday use</span></div><a href="#build-a-report" data-target="build-a-report"><span class="nav-badge">3</span><span class="nav-text">Build a report</span></a><a href="#schedule-the-collection" data-target="schedule-the-collection"><span class="nav-badge">4</span><span class="nav-text">Schedule the collection</span></a><a href="#read-the-results" data-target="read-the-results"><span class="nav-badge">5</span><span class="nav-text">Read the results</span></a><a href="#status-logs-and-exit-codes" data-target="status-logs-and-exit-codes"><span class="nav-badge">6</span><span class="nav-text">Status, logs and exit codes</span></a><div class="nav-part">Part III <span>Troubleshoot</span></div><a href="#common-situations" data-target="common-situations"><span class="nav-badge">7</span><span class="nav-text">Common situations</span></a></nav></aside>
+<main><header class="hero" id="top"><div class="hero-top"><div class="hero-logo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="eyebrow">User guide</div><h1>Recipient Limit Report</h1></div><button type="button" id="theme" class="ghost" title="Light / dark"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></button></div><div class="badges"><span class="badge badge-accent">Version 1.0.1</span><span class="badge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Updated 2026-10-08</span><span class="badge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Nicolas Fabert</span><span class="badge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg>PowerShell 7.4+</span><span class="badge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Read-only for Microsoft 365</span></div><p class="lead">What is needed before the first report, then the commands used every day: <strong>which messages exceed the recipient limit?</strong>, <strong>what did the sender address before distribution-list expansion?</strong>, and <strong>is the collection up to date?</strong> The configuration details, Microsoft Graph behaviour and internals are in the <a href="RecipientLimitReport-Guide.html">developer guide</a>.</p>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>Files downloaded from the Internet may be blocked by Windows and fail to run. Before using this project, unblock every file in the downloaded folder:</p>
+<div class="code"><div class="code-head"><span>PowerShell</span><button type="button" class="copy"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button></div><pre><code>Get-ChildItem &quot;C:\Chemin\Du\Dossier&quot; -Recurse -File -Force | Unblock-File
+</code></pre></div>
+<p>Replace the example path with the folder where you downloaded or extracted this project.</p>
+<p>The <code>Install-Module</code> commands in this documentation use <code>-Force</code>, so they also update or reinstall a module that is already installed. If an older version still conflicts, close every PowerShell window, open a new one (as administrator for <code>-Scope AllUsers</code>), run <code>Uninstall-Module &lt;ModuleName&gt; -AllVersions -Force</code>, then run the <code>Install-Module</code> command again.</p>
+</div>
+<div class="cards"><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L8 4.5M3.5 12l1.5 1.5L8 10.5M3.5 18l1.5 1.5L8 16.5"/></svg></div><div><div class="card-title">Prerequisites</div><div class="card-text">PowerShell 7.4+, Microsoft Graph permission, certificate or interactive sign-in, HTTPS access.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg></div><div><div class="card-title">Everyday use</div><div class="card-text">One command for a period, a daily collection, or the database status.</div></div></div><div class="card-item"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg></div><div><div class="card-title">Results</div><div class="card-text">CSV and self-contained HTML files written locally under <code>reports\</code>.</div></div></div></div>
+</header><div class="part" id="part-i-start-here"><span class="part-label">Part I</span><span class="part-name">Start here</span></div>
+<section class="section" id="prerequisites"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L8 4.5M3.5 12l1.5 1.5L8 10.5M3.5 18l1.5 1.5L8 16.5"/></svg></div><div><div class="section-eyebrow">Chapter 1</div><h2>Prerequisites</h2></div></div><div class="section-body">
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operating system</td>
+<td>Windows 10/11 or Windows Server 2016+, x64 or ARM64</td>
+</tr>
+<tr>
+<td>PowerShell</td>
+<td><strong>PowerShell 7.4 or later</strong> (<code>pwsh</code>), not Windows PowerShell 5.1</td>
+</tr>
+<tr>
+<td>Console</td>
+<td>Windows Terminal, for the emoji and the colours of the display</td>
+</tr>
+<tr>
+<td>Modules</td>
+<td><strong>None</strong> in certificate and secret modes; <code>Microsoft.Graph.Authentication</code> for the interactive sign-in</td>
+</tr>
+<tr>
+<td>Browser</td>
+<td>Recent Edge, Chrome or Firefox for the HTML report</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>HTTPS to <code>graph.microsoft.com</code> and <code>login.microsoftonline.com</code></td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>Space for the SQLite history and the reports; large periods can produce large CSV files</td>
+</tr>
+<tr>
+<td>SQLite</td>
+<td>Bundled in <code>lib\sqlite</code> — nothing to install</td>
+</tr>
+<tr>
+<td>Microsoft Graph</td>
+<td><code>ExchangeMessageTrace.Read.All</code>, application permission with admin consent for unattended use, or delegated consent for interactive use</td>
+</tr>
+</tbody>
+</table></div>
+<p>For certificate mode, the certificate with its private key must be available to the account that runs the tool. The tenant must also have the Microsoft message trace service principal (<code>8bd644d1-64a1-4d4b-ae52-2e0cbf64e373</code>). The complete registration procedure is in the <a href="RecipientLimitReport-Guide.html#unattended-execution">developer guide, chapter 7</a>.</p>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>The tool is <strong>read-only</strong> for Microsoft 365: it never sends mail and never changes a tenant setting. Reports and the SQLite database stay on the local disk.</p>
+</div>
+</div></section><section class="section" id="one-time-setup"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></div><div><div class="section-eyebrow">Chapter 2</div><h2>One-time setup</h2></div></div><div class="section-body">
+<p>Everything you run is in the <code>package</code> folder of the repository, or in the folder where you extracted the zip of a <a href="https://github.com/Nico77600/RecipientLimitReport/releases" target="_blank" rel="noopener">release</a>. Work from that folder.</p>
+<ol class="steps"><li><span class="step-num">1</span><div class="step-body"><div class="step-title">Get the files</div><div class="step-text"><code>git clone https://github.com/Nico77600/RecipientLimitReport.git</code>, then <code>cd RecipientLimitReport\package</code> — or extract the release zip, for example to <code>D:\Tools\RecipientLimitReport</code>.</div></div></li><li><span class="step-num">2</span><div class="step-body"><div class="step-title">Unblock the files</div><div class="step-text">From that folder: <code>Get-ChildItem . -Recurse -File | Unblock-File</code>.</div></div></li><li><span class="step-num">3</span><div class="step-body"><div class="step-title">Edit the configuration</div><div class="step-text"><code>notepad .\config\RecipientLimitReport.config.psd1</code> and fill in the tenant, authentication, recipient limit and sender domains.</div></div></li><li><span class="step-num">4</span><div class="step-body"><div class="step-title">Check the installation</div><div class="step-text"><code>.\Invoke-RecipientLimitReport.ps1 -Mode Status</code> checks the configuration and builds the engine, without connecting to Microsoft 365. On a new installation it ends with <em>Ready for the first collection</em>.</div></div></li><li><span class="step-num">5</span><div class="step-body"><div class="step-title">Run the first report</div><div class="step-text"><code>.\Invoke-RecipientLimitReport.ps1</code> collects the missing data, counts the messages sent to distribution lists and writes the report.</div></div></li></ol>
+<p>The delivered configuration is intentionally empty for tenant-specific values. The main settings are:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tenant.TenantId</code></td>
+<td>Microsoft Entra tenant GUID; the token is checked against it</td>
+</tr>
+<tr>
+<td><code>Authentication.Mode</code></td>
+<td><code>Certificate</code>, <code>ClientSecret</code> or <code>Interactive</code></td>
+</tr>
+<tr>
+<td><code>Authentication.AppId</code></td>
+<td>Application (client) ID; empty in interactive mode uses Microsoft Graph Command Line Tools</td>
+</tr>
+<tr>
+<td><code>Authentication.CertificateThumbprint</code></td>
+<td>Certificate thumbprint in the certificate store of the running account</td>
+</tr>
+<tr>
+<td><code>Target.RecipientLimit</code></td>
+<td><code>25</code> reports messages with <strong>more than</strong> 25 recipients</td>
+</tr>
+<tr>
+<td><code>Target.SenderDomains</code></td>
+<td><code>@()</code> reads every sender; accepted domains limit the report to messages sent by the organisation</td>
+</tr>
+</tbody>
+</table></div>
+<p>The developer guide covers client secrets, interactive sign-in, service-principal creation and every configuration key.</p>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>data\</code>, <code>reports\</code> and <code>logs\</code> are created at the first run. Back up <code>data\</code>: it is the only history beyond the 90 days of the message trace.</p>
+</div>
+</div></section><div class="part" id="part-ii-everyday-use"><span class="part-label">Part II</span><span class="part-name">Everyday use</span></div>
+<section class="section" id="build-a-report"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg></div><div><div class="section-eyebrow">Chapter 3</div><h2>Build a report</h2></div></div><div class="section-body">
+<p>Run the commands from that same folder, in PowerShell 7:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>I want…</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The last 7 days (default)</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1</code></td>
+</tr>
+<tr>
+<td>The last 24 hours</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range Last24Hours</code></td>
+</tr>
+<tr>
+<td>The last 30 days</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range Last30Days</code></td>
+</tr>
+<tr>
+<td>The previous calendar month</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range PreviousMonth</code></td>
+</tr>
+<tr>
+<td>A given month</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range Month -Month 2026-08</code></td>
+</tr>
+<tr>
+<td>One day</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range Day -Date 2026-09-28</code></td>
+</tr>
+<tr>
+<td>A custom period</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range Custom -Start '2026-09-28 08:00' -End '2026-09-29'</code></td>
+</tr>
+<tr>
+<td>Count only, smaller files</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Range PreviousMonth -IncludeRecipientDetails:$false</code></td>
+</tr>
+<tr>
+<td>Use only already collected data</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -NoCollect</code></td>
+</tr>
+<tr>
+<td>Check the database</td>
+<td><code>.\Invoke-RecipientLimitReport.ps1 -Mode Status</code></td>
+</tr>
+<tr>
+<td>The full help</td>
+<td><code>Get-Help .\Invoke-RecipientLimitReport.ps1 -Full</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Unless <code>-NoCollect</code> is used, Report mode first collects the missing part of the period, reads the recipient count before distribution-list expansion where needed, and then writes the files. The default period is controlled by <code>Report.DefaultRange</code> in the configuration.</p>
+<p>The console shows a banner (mode, period, limit and senders, database and log file), then six numbered steps — database, plan, connection, collection, count, report — and a summary card: green when complete, amber when part of the period is missing or counts are still to read, red on error.</p>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>The message trace keeps about <strong>90 days</strong>. The database keeps the messages over the limit beyond that period, so run the daily collection to preserve history.</p>
+</div>
+</div></section><section class="section" id="schedule-the-collection"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><div><div class="section-eyebrow">Chapter 4</div><h2>Schedule the collection</h2></div></div><div class="section-body">
+<p>The daily collection is intended for a scheduled task using certificate authentication. Change <code>D:\Tools\RecipientLimitReport</code> to your own folder:</p>
+<div class="code"><div class="code-head"><span>PowerShell</span><button type="button" class="copy"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button></div><pre><code>$action = New-ScheduledTaskAction -Execute 'pwsh.exe' `
+    -Argument '-NoProfile -NonInteractive -File &quot;D:\Tools\RecipientLimitReport\Invoke-RecipientLimitReport.ps1&quot; -Mode Collect' `
+    -WorkingDirectory 'D:\Tools\RecipientLimitReport'
+$trigger = New-ScheduledTaskTrigger -Daily -At 06:00
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 12) -StartWhenAvailable -MultipleInstances IgnoreNew
+Register-ScheduledTask -TaskName 'Recipient Limit Report - daily collection' -Action $action -Trigger $trigger `
+    -Settings $settings -User 'DOMAIN\svc-rlreport' -Password '&lt;password&gt;' -RunLevel Limited
+</code></pre></div>
+<p>The first collection checks <code>Collection.BackfillDays</code> (7 by default). Later runs collect only what is missing and refresh the most recent hours, where message-trace rows and statuses can still change.</p>
+<div class="markdown-alert markdown-alert-tip">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</p>
+<p>Two collections never run at the same time: a lock file stops the second one. If a scheduled collection is running, use <code>-NoCollect</code> for a report.</p>
+</div>
+</div></section><section class="section" id="read-the-results"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M6 16v-5M11 16V6M16 16v-8"/></svg></div><div><div class="section-eyebrow">Chapter 5</div><h2>Read the results</h2></div></div><div class="section-body">
+<p>Each report creates a new folder <code>reports\&lt;date&gt;_&lt;range&gt;\</code>. It contains:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.html</code></td>
+<td>Self-contained report with summary tiles, the distribution by recipient count, Top 10 senders, search, filters, message details and <strong>Export view to CSV</strong></td>
+</tr>
+<tr>
+<td><code>.csv</code></td>
+<td>Complete export, UTF-8 with BOM and <code>;</code> separator for Excel</td>
+</tr>
+</tbody>
+</table></div>
+<p>The report contains one row per unique Message ID over the limit:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Received time</td>
+<td>Exchange Online receive time in the configured time zone</td>
+</tr>
+<tr>
+<td>Sender</td>
+<td>Sender address</td>
+</tr>
+<tr>
+<td>Recipients</td>
+<td>Addresses as the sender addressed them; optional with <code>IncludeRecipientDetails</code></td>
+</tr>
+<tr>
+<td>Subject</td>
+<td>Message subject</td>
+</tr>
+<tr>
+<td>Recipient count</td>
+<td>Count <strong>before</strong> distribution-list expansion</td>
+</tr>
+<tr>
+<td>Distribution lists</td>
+<td>Number of lists used by the message</td>
+</tr>
+<tr>
+<td>Message ID</td>
+<td>Internet Message ID</td>
+</tr>
+</tbody>
+</table></div>
+<p>A distribution list counts as <strong>one recipient</strong>. For a message sent to a list, the report lists the list first and leaves out members added by the expansion. Bcc recipients are included: protect CSV and HTML files as sensitive data.</p>
+<p>Up to <code>Report.MaxRowsPerFile</code> messages (500,000 by default) the run writes one CSV and one HTML file. Above that, files are split by week (default), by day or by number of rows, and a week or a day too large is cut into numbered parts (<code>_part1of2</code>).</p>
+<div class="markdown-alert markdown-alert-tip">
+<p class="markdown-alert-title"><svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</p>
+<p>A folder ending in <code>.pending</code> is still being written. A folder without <code>.pending</code> is a complete report.</p>
+</div>
+</div></section><section class="section" id="status-logs-and-exit-codes"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></div><div><div class="section-eyebrow">Chapter 6</div><h2>Status, logs and exit codes</h2></div></div><div class="section-body">
+<p>Use Status to see the data held day by day, missing periods and messages still waiting for a count:</p>
+<div class="code"><div class="code-head"><span>PowerShell</span><button type="button" class="copy"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button></div><pre><code>.\Invoke-RecipientLimitReport.ps1 -Mode Status
+</code></pre></div>
+<p>Each day shows its messages over the limit, the messages still to count, a coverage bar and a state: <em>Complete</em>, <em>Complete, refreshed at next run</em>, <em>Missing, collectable N more days</em>, or <em>no longer collectable</em>.</p>
+<p>The daily log is written to <code>logs\RecipientLimitReport_yyyyMMdd.log</code>, without colours or icons, and kept 30 days.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Exit code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Failure; read the red console message and the daily log</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>Report written but incomplete; part of the period is missing or messages sent to lists still need counting</td>
+</tr>
+</tbody>
+</table></div>
+<p>If a run is interrupted, run the same command again. Received pages and completed counts are already stored, so the next run resumes without duplicates.</p>
+</div></section><div class="part" id="part-iii-troubleshoot"><span class="part-label">Part III</span><span class="part-name">Troubleshoot</span></div>
+<section class="section" id="common-situations"><div class="section-head"><div class="section-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg></div><div><div class="section-eyebrow">Chapter 7</div><h2>Common situations</h2></div></div><div class="section-body">
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Invalid configuration (...)</code> and a list of lines</td>
+<td>Wrong values in the configuration file</td>
+<td>Fix every line listed, then run <code>-Mode Status</code> again. Nothing was done.</td>
+</tr>
+<tr>
+<td><code>Connected to tenant …, but Tenant.TenantId is …</code></td>
+<td>The token belongs to another tenant</td>
+<td>Correct <code>Tenant.TenantId</code>, or sign in with the expected account.</td>
+</tr>
+<tr>
+<td><code>401 … service principal … 8bd644d1-64a1-4d4b-ae52-2e0cbf64e373</code></td>
+<td>The message trace service is not provisioned in the tenant</td>
+<td>Create the service principal (developer guide, chapter 7), then wait — up to a few hours.</td>
+</tr>
+<tr>
+<td><code>The application has no application permission ExchangeMessageTrace.Read.All</code></td>
+<td>Permission or admin consent missing</td>
+<td>Grant <code>ExchangeMessageTrace.Read.All</code> and the admin or delegated consent.</td>
+</tr>
+<tr>
+<td><code>Certificate … not found</code> / <code>without its private key</code></td>
+<td>Another account runs the task, or the <code>.cer</code> was imported instead of the <code>.pfx</code></td>
+<td>Import the certificate with its private key for the account that runs the tool.</td>
+</tr>
+<tr>
+<td><em>Another execution is already collecting</em></td>
+<td>The scheduled collection is running</td>
+<td>Wait, or use <code>-NoCollect</code>.</td>
+</tr>
+<tr>
+<td>Report is incomplete (exit code <code>2</code>)</td>
+<td>Part of the period is missing, or counts are still to read</td>
+<td>Run the same command again; the summary says which part.</td>
+</tr>
+<tr>
+<td><em>waiting for the quota</em>, collection is slow</td>
+<td>The tenant quota is 100 requests per 5 minutes</td>
+<td>Normal: the tool uses 90 of them (<code>Collection.MaxRequests</code>).</td>
+</tr>
+<tr>
+<td><code>Missing … collectable for N more day(s)</code></td>
+<td>The daily collection did not run</td>
+<td>Run <code>-Mode Collect</code>, or a report of that period, before the deadline; check the scheduled task.</td>
+</tr>
+<tr>
+<td>Large CSV or HTML file</td>
+<td>Recipient addresses, or a very long period</td>
+<td>Use <code>-IncludeRecipientDetails:$false</code>, a shorter period, or <code>-SplitBy Day</code>.</td>
+</tr>
+<tr>
+<td>Squares instead of icons in the console</td>
+<td>The console is not Windows Terminal</td>
+<td>Run the tool in Windows Terminal.</td>
+</tr>
+</tbody>
+</table></div>
+<p>For detailed Graph behaviour, quota sizing, configuration validation, database retention and development instructions, continue with the <a href="RecipientLimitReport-Guide.html">developer guide</a>.</p>
+</div></section>
+<footer>Recipient Limit Report 1.0.1 · Nicolas Fabert · generated 2026-10-08 21:58 from RecipientLimitReport-UserGuide.md</footer></main>
+<button type="button" id="to-top" title="Back to top"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
+<dialog id="zoom"><img alt=""></dialog>
+<script>
+(() => {
+  "use strict";
+  // Theme toggle (no storage: the choice lasts for the page).
+  document.getElementById("theme").addEventListener("click", () => {
+    const root = document.documentElement;
+    root.setAttribute("data-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+  // Highlight the chapter being read in the sidebar.
+  const links = new Map(Array.from(document.querySelectorAll("aside a[data-target]")).map(a => [a.dataset.target, a]));
+  const observer = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      links.forEach(a => a.classList.remove("active"));
+      const link = links.get(e.target.id);
+      if (link) { link.classList.add("active"); link.scrollIntoView({ block: "nearest" }); }
+    }
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  document.querySelectorAll("section.section").forEach(s => observer.observe(s));
+  // Copy buttons.
+  document.querySelectorAll(".code .copy").forEach(button => button.addEventListener("click", async () => {
+    const text = button.closest(".code").querySelector("pre").innerText;
+    try { await navigator.clipboard.writeText(text); }
+    catch { const r = document.createRange(); r.selectNodeContents(button.closest(".code").querySelector("pre")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand("copy"); s.removeAllRanges(); }
+    const label = button.querySelector("span"); label.textContent = "Copied"; button.classList.add("done");
+    setTimeout(() => { label.textContent = "Copy"; button.classList.remove("done"); }, 1600);
+  }));
+  // Image zoom.
+  const zoom = document.getElementById("zoom");
+  document.querySelectorAll("figure img").forEach(img => img.addEventListener("click", () => { zoom.querySelector("img").src = img.src; zoom.showModal(); }));
+  zoom.addEventListener("click", () => zoom.close());
+  // Back to top.
+  const top = document.getElementById("to-top");
+  addEventListener("scroll", () => top.classList.toggle("visible", scrollY > 600), { passive: true });
+  top.addEventListener("click", () => scrollTo({ top: 0 }));
+})();
+</script>
+</body></html>
