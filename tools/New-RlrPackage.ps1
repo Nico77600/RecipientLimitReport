@@ -4,10 +4,11 @@
     Copies the files needed to run Recipient Limit Report into a separate folder, ready to be zipped.
 
 .DESCRIPTION
-    The package contains only what Invoke-RecipientLimitReport.ps1 needs at run time, plus the HTML guide
+    The package contains only what Invoke-RecipientLimitReport.ps1 needs at run time, plus the HTML guides
     and the licence notice of the SQLite binaries:
         Invoke-RecipientLimitReport.ps1, RecipientLimitReport.psd1, RecipientLimitReport.psm1,
-        config\, src\, templates\, lib\sqlite\, docs\RecipientLimitReport-Guide.html, THIRD-PARTY-NOTICES.md
+        config\, src\, templates\, lib\sqlite\, docs\RecipientLimitReport-UserGuide.html,
+        docs\RecipientLimitReport-Guide.html, THIRD-PARTY-NOTICES.md
     It never copies data\, reports\, logs\ or bin\: there is no database in the package, the tool
     creates an empty one at the first run.
 
@@ -58,7 +59,8 @@ if (Test-Path -LiteralPath $Destination) {
 # ---- Files needed at run time ---------------------------------------------------------------------------
 $files = [Collections.Generic.List[string]]::new()
 foreach ($f in 'Invoke-RecipientLimitReport.ps1', 'RecipientLimitReport.psd1', 'RecipientLimitReport.psm1', 'THIRD-PARTY-NOTICES.md',
-    'src\RecipientLimitReport.Engine.cs', 'templates\Report.template.html', 'docs\RecipientLimitReport-Guide.html') { $files.Add($f) }
+    'src\RecipientLimitReport.Engine.cs', 'templates\Report.template.html',
+    'docs\RecipientLimitReport-UserGuide.html', 'docs\RecipientLimitReport-Guide.html') { $files.Add($f) }
 Get-ChildItem -LiteralPath (Join-Path $packageRoot 'lib\sqlite') -Recurse -File | ForEach-Object { $files.Add($_.FullName.Substring($packageRoot.Length + 1)) }
 
 foreach ($f in $files) {
