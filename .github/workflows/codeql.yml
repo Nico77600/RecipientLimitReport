@@ -36,6 +36,7 @@
           "include": [
             {
               "language": "actions",
+              "build-mode": "none",
               "runner": "ubuntu-latest",
               "config": {
                 "name": "GitHub Actions workflows",
@@ -44,11 +45,10 @@
             },
             {
               "language": "csharp",
+              "build-mode": "manual",
               "runner": "windows-2022",
               "config": {
-                "name": "Production C# loose-source pilot",
-                "paths": ["package/src"],
-                "paths-ignore": ["tests", "package/lib", "tools"]
+                "name": "Production C# with exact runtime references"
               }
             }
           ]
@@ -63,15 +63,21 @@
           }
         },
         {
-          "name": "Initialize source-only analysis",
+          "name": "Initialize language-specific analysis",
           "uses": "github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d",
           "with": {
             "languages": "${{ matrix.language }}",
-            "build-mode": "none",
+            "build-mode": "${{ matrix.build-mode }}",
             "threads": 2,
             "dependency-caching": "false",
             "config": "${{ toJson(matrix.config) }}"
           }
+        },
+        {
+          "name": "Compile all production C# without runtime execution",
+          "if": "${{ matrix.language == 'csharp' }}",
+          "shell": "pwsh",
+          "run": "& .\\.github\\scripts\\Build-CodeQLProduction.ps1"
         },
         {
           "name": "Analyze and upload advisory results",
@@ -81,6 +87,18 @@
             "upload": "always",
             "upload-database": "false",
             "wait-for-processing": "true"
+          }
+        },
+        {
+          "name": "Preserve C# compilation inventory",
+          "if": "${{ always() && matrix.language == 'csharp' }}",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "with": {
+            "name": "codeql-production-build",
+            "path": ".github/codeql/out/build-manifest.json\n.github/codeql/out/compiled-sources.txt\n.github/codeql/out/compiler-references.txt",
+            "if-no-files-found": "warn",
+            "include-hidden-files": true,
+            "retention-days": 14
           }
         }
       ]
