@@ -1,0 +1,89 @@
+{
+  "name": "CodeQL (advisory)",
+  "on": {
+    "pull_request": {
+      "branches": ["main"]
+    },
+    "push": {
+      "branches": ["main"]
+    },
+    "schedule": [
+      {
+        "cron": "41 5 * * 3"
+      }
+    ],
+    "workflow_dispatch": {}
+  },
+  "permissions": {},
+  "concurrency": {
+    "group": "codeql-${{ github.workflow }}-${{ github.ref }}",
+    "cancel-in-progress": true
+  },
+  "jobs": {
+    "analyze": {
+      "name": "CodeQL ${{ matrix.language }} (advisory)",
+      "if": "${{ contains(fromJSON('[\"Nico77600/ExchangeLogReport\",\"Nico77600/MailboxMessageReport\",\"Nico77600/MeetingCleanup\",\"Nico77600/MeetingCleanupOnPrem\",\"Nico77600/MessageTraceReport\",\"Nico77600/PurviewDlpReport\",\"Nico77600/PurviewDlpReport-Fabric\",\"Nico77600/RecipientLimitReport\"]'), github.repository) && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main') }}",
+      "runs-on": "${{ matrix.runner }}",
+      "timeout-minutes": 25,
+      "permissions": {
+        "contents": "read",
+        "security-events": "write"
+      },
+      "strategy": {
+        "fail-fast": false,
+        "max-parallel": 2,
+        "matrix": {
+          "include": [
+            {
+              "language": "actions",
+              "runner": "ubuntu-latest",
+              "config": {
+                "name": "GitHub Actions workflows",
+                "paths": [".github/workflows"]
+              }
+            },
+            {
+              "language": "csharp",
+              "runner": "windows-2022",
+              "config": {
+                "name": "Production C# loose-source pilot",
+                "paths": ["package/src"],
+                "paths-ignore": ["tests", "package/lib", "tools"]
+              }
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "name": "Check out event revision",
+          "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Initialize source-only analysis",
+          "uses": "github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d",
+          "with": {
+            "languages": "${{ matrix.language }}",
+            "build-mode": "none",
+            "threads": 2,
+            "dependency-caching": "false",
+            "config": "${{ toJson(matrix.config) }}"
+          }
+        },
+        {
+          "name": "Analyze and upload advisory results",
+          "uses": "github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d",
+          "with": {
+            "category": "/language:${{ matrix.language }}",
+            "upload": "always",
+            "upload-database": "false",
+            "wait-for-processing": "true"
+          }
+        }
+      ]
+    }
+  }
+}
