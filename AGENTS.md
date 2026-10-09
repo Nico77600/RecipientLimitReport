@@ -32,3 +32,15 @@ Direct pushes, force pushes, and deletion of public main are prohibited. Do not 
 Keep secret scanning and push protection enabled. Do not routinely bypass alerts. Dependency scanning is not a replacement for the project's tests and analysis. Follow SECURITY.md for sensitive reports. Maintain versioned backups of public Git history, release assets, and settings outside the repository; keep an additional copy off the development machine.
 
 For a new public repository, configure these branch/tag protections and future-release immutability before the first release. Enable dependency graph, Dependabot alerts, secret scanning, push protection, and private vulnerability reporting. Personal-account repositories do not automatically inherit these settings. Automatic merges and automated dependency-update pull requests are not part of this baseline.
+
+## CI and provenance
+
+GitHub Actions runs the existing tests and package builder on a disposable Windows runner using the project's configured PowerShell edition. It does not connect to the development lab or use publication credentials. CI helpers live under .github/scripts and are not part of the runtime package.
+
+PowerShell syntax and analyzer execution must succeed. PSScriptAnalyzer diagnostics and CodeQL findings are initially advisory, not automatically fixed. CodeQL analyzes workflows and, where configured, C# sources; it does not analyze PowerShell. An unsuccessful scan is not evidence of security or complete coverage.
+
+Required validation checks are enabled only after successful GitHub runs. Do not bypass them or weaken existing tests to publish. If a check fails, inspect its evidence and address the cause.
+
+The release attestation workflow does not build or execute repository code. It attests the actual published ZIP bytes; it does not prove their original build. Manual attestation must run from the default branch with an explicit existing release tag. Missing releases or ZIPs fail explicitly; no source archive is substituted.
+
+Actions are pinned to full commit IDs. Updates require review of the action source and an explicit pin change. Repository policies may reject unpinned or unapproved actions; never relax them to merge a contribution.

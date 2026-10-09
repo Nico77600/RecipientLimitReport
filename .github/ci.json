@@ -1,0 +1,10 @@
+{
+  "runtimeRoot": "package",
+  "testMode": "pester",
+  "testEntry": null,
+  "tests": [
+    "tests/RecipientLimitReport.Tests.ps1"
+  ],
+  "packageBuilder": "tools/New-RlrPackage.ps1",
+  "packageEntry": "Invoke-RecipientLimitReport.ps1"
+}
