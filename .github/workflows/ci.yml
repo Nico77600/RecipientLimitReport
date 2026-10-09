@@ -33,17 +33,34 @@ jobs:
         shell: pwsh
         run: .\.github\scripts\Initialize-CIModules.ps1 -Destination "$env:RUNNER_TEMP\ci-modules"
 
-      - name: Analyze PowerShell sources
-        shell: ${{ matrix.shell }}
+      - name: Analyze PowerShell sources (PowerShell 7)
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
         run: .\.github\scripts\Invoke-CI.ps1 -Stage Analyze -OutputDirectory "$env:RUNNER_TEMP\ci-results"
 
-      - name: Run the existing project tests
-        shell: ${{ matrix.shell }}
+      - name: Analyze PowerShell sources (Windows PowerShell 5.1)
+        if: matrix.shell == 'powershell'
+        shell: powershell
+        run: .\.github\scripts\Invoke-CI.ps1 -Stage Analyze -OutputDirectory "$env:RUNNER_TEMP\ci-results"
+
+      - name: Run the existing project tests (PowerShell 7)
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
         run: .\.github\scripts\Invoke-CI.ps1 -Stage Test -OutputDirectory "$env:RUNNER_TEMP\ci-results"
 
-      - name: Build with the existing package tool
-        if: matrix.package
-        shell: ${{ matrix.shell }}
+      - name: Run the existing project tests (Windows PowerShell 5.1)
+        if: matrix.shell == 'powershell'
+        shell: powershell
+        run: .\.github\scripts\Invoke-CI.ps1 -Stage Test -OutputDirectory "$env:RUNNER_TEMP\ci-results"
+
+      - name: Build with the existing package tool (PowerShell 7)
+        if: matrix.package && matrix.shell == 'pwsh'
+        shell: pwsh
+        run: .\.github\scripts\Invoke-CI.ps1 -Stage Package -OutputDirectory "$env:RUNNER_TEMP\ci-results"
+
+      - name: Build with the existing package tool (Windows PowerShell 5.1)
+        if: matrix.package && matrix.shell == 'powershell'
+        shell: powershell
         run: .\.github\scripts\Invoke-CI.ps1 -Stage Package -OutputDirectory "$env:RUNNER_TEMP\ci-results"
 
       - name: Retain public CI evidence
