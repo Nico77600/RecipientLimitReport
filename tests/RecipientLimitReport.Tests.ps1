@@ -151,6 +151,40 @@ Describe 'Console characters' {
     }
 }
 
+Describe 'Runtime disclaimer' -Tag 'Disclaimer' {
+    It 'keeps the runtime readme and public script help identical to the root disclaimer' {
+        $pattern = '(?ms)^## Disclaimer\n\n(?<Text>.*?)(?=^## |\z)'
+        $readme = [IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md')).Replace("`r`n", "`n")
+        $sections = [regex]::Matches($readme, $pattern)
+        $sections.Count | Should -Be 1
+        $canonical = $sections[0].Groups['Text'].Value.TrimEnd([char[]]"`n")
+        $canonical | Should -Not -BeNullOrEmpty
+
+        $runtimeReadme = [IO.File]::ReadAllText((Join-Path $script:Root 'README.md')).Replace("`r`n", "`n")
+        $runtimeSections = [regex]::Matches($runtimeReadme, $pattern)
+        $runtimeSections.Count | Should -Be 1
+        $runtimeSections[0].Groups['Text'].Value.TrimEnd([char[]]"`n") | Should -BeExactly $canonical
+
+        $entry = Join-Path $script:Root 'Invoke-RecipientLimitReport.ps1'
+        $notes = ((Get-Help $entry -Full).alertSet.alert.Text -join "`n").Replace("`r`n", "`n")
+        $disclaimers = [regex]::Matches($notes, '(?ms)^Disclaimer:\n(?<Text>.*?)(?=\n\nRequires -Version|\z)')
+        $disclaimers.Count | Should -Be 1
+        $disclaimers[0].Groups['Text'].Value.TrimEnd([char[]]"`n") | Should -BeExactly $canonical
+    }
+    It 'includes the runtime readme in the existing package builder inventory' {
+        $builder = Join-Path $script:RepoRoot 'tools\New-RlrPackage.ps1'
+        $ast = [Management.Automation.Language.Parser]::ParseFile($builder, [ref]$null, [ref]$null)
+        $inventory = $ast.Find({
+            param($node)
+            $node -is [Management.Automation.Language.ArrayLiteralAst] -and
+                $node.Elements[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and
+                $node.Elements[0].Value -eq 'Invoke-RecipientLimitReport.ps1'
+        }, $true)
+        $inventory | Should -Not -BeNullOrEmpty
+        @($inventory.Elements | ForEach-Object Value) | Should -Contain 'README.md'
+    }
+}
+
 Describe 'Entry script' {
     It 'Status on a new installation confirms the configuration and creates no database' {
         $dir = Join-Path $TestDrive 'fresh'

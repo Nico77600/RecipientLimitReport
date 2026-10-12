@@ -58,7 +58,7 @@ if (Test-Path -LiteralPath $Destination) {
 
 # ---- Files needed at run time ---------------------------------------------------------------------------
 $files = [Collections.Generic.List[string]]::new()
-foreach ($f in 'Invoke-RecipientLimitReport.ps1', 'RecipientLimitReport.psd1', 'RecipientLimitReport.psm1', 'THIRD-PARTY-NOTICES.md',
+foreach ($f in 'Invoke-RecipientLimitReport.ps1', 'RecipientLimitReport.psd1', 'RecipientLimitReport.psm1', 'README.md', 'THIRD-PARTY-NOTICES.md',
     'src\RecipientLimitReport.Engine.cs', 'templates\Report.template.html',
     'docs\RecipientLimitReport-UserGuide.html', 'docs\RecipientLimitReport-Guide.html') { $files.Add($f) }
 Get-ChildItem -LiteralPath (Join-Path $packageRoot 'lib\sqlite') -Recurse -File | ForEach-Object { $files.Add($_.FullName.Substring($packageRoot.Length + 1)) }
